@@ -1,14 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <html>
-<head><title>Лицензии</title></head>
+<head><meta charset="UTF-8"><title>Лицензии</title></head>
 <body>
+<%@ include file="/WEB-INF/views/layout/global-navbar.jsp" %>
+<%@ include file="/WEB-INF/views/layout/org-navbar.jsp" %>
 <h1>Реестр лицензий</h1>
-
-<p>
-    <strong>Лицензии</strong> |
-    <a href="${pageContext.request.contextPath}/licenses/types">Типы лицензий</a>
-</p>
 
 <p><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/new">Добавить лицензию</a></p>
 

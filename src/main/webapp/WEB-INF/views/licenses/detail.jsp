@@ -1,8 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <html>
-<head><title>Лицензия</title></head>
+<head><meta charset="UTF-8"><title>Лицензия</title></head>
 <body>
+<%@ include file="/WEB-INF/views/layout/global-navbar.jsp" %>
+<%@ include file="/WEB-INF/views/layout/org-navbar.jsp" %>
 <h1>${license.title}</h1>
 <p>Статус: ${license.status}</p>
 <p>Выдана: ${license.issuedAt}</p>

@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <html>
-<head><title>Регистрация</title></head>
+<head><meta charset="UTF-8"><title>Регистрация</title></head>
 <body>
 <h1>Регистрация</h1>
 <c:if test="${not empty error}">

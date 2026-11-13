@@ -38,6 +38,7 @@ public class LicenseController {
         switch (action) {
             case null -> showLicense(req, resp, orgId);
             case "new" -> showNewLicensePage(req, resp, orgId);
+            case "types" -> showTypes(req, resp, orgId);
             default -> handleLicenseInfoRequest(req, resp, segments, orgId);
         }
     }
@@ -65,6 +66,12 @@ public class LicenseController {
         render(req, resp, "licenses/form.jsp");
     }
 
+    private void showTypes(HttpServletRequest req, HttpServletResponse resp, UUID orgId) throws ServletException, IOException {
+        req.setAttribute("orgId", orgId);
+        req.setAttribute("types", services.getLicenseTypeService().getAll());
+        render(req, resp, "licenses/types.jsp");
+    }
+
     private LicenseStatus parseStatus(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -87,6 +94,7 @@ public class LicenseController {
 
         try {
             License license = services.getLicenseService().getById(licenseId);
+            req.setAttribute("orgId", orgId);
 
             if ("edit".equals(action)) {
                 req.setAttribute("license", license);
@@ -110,6 +118,7 @@ public class LicenseController {
 
         switch (PathUtil.segment(segments, 2)) {
             case "new" -> createLicense(req, resp, orgId);
+            case "types" -> createType(req, resp, orgId);
             case null -> renderError(req, resp, HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Метод не поддерживается");
             default -> handleLicenseAction(req, resp, segments, orgId, currentUser);
         }
@@ -132,6 +141,21 @@ public class LicenseController {
             req.setAttribute("error", e.getMessage());
             req.setAttribute("types", services.getLicenseTypeService().getAll());
             render(req, resp, "licenses/form.jsp");
+        }
+    }
+
+    private void createType(HttpServletRequest req, HttpServletResponse resp, UUID orgId) throws ServletException, IOException {
+        try {
+            services.getLicenseTypeService().create(
+                    req.getParameter("code"),
+                    req.getParameter("name")
+            );
+            redirect(req, resp, "/org/" + orgId + "/licenses/types");
+        } catch (ValidationException e) {
+            req.setAttribute("orgId", orgId);
+            req.setAttribute("error", e.getMessage());
+            req.setAttribute("types", services.getLicenseTypeService().getAll());
+            render(req, resp, "licenses/types.jsp");
         }
     }
 

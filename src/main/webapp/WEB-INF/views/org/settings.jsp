@@ -1,8 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <html>
-<head><title>Организация</title></head>
+<head><meta charset="UTF-8"><title>Организация</title></head>
 <body>
+<%@ include file="/WEB-INF/views/layout/global-navbar.jsp" %>
+<%@ include file="/WEB-INF/views/layout/org-navbar.jsp" %>
 <h1>${organization.name}</h1>
 <p>Join-код: <b>${organization.joinCode}</b></p>
 
@@ -42,7 +44,5 @@
         </tr>
     </c:forEach>
 </table>
-
-<p><a href="${pageContext.request.contextPath}/org/${organization.id}/licenses">К лицензиям</a></p>
 </body>
 </html>

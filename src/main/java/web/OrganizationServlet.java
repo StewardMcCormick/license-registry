@@ -49,6 +49,7 @@ public class OrganizationServlet extends BaseServlet {
             Organization organization = services().getOrganizationService().getById(orgId);
             List<OrganizationMember> members = services().getOrganizationService().getMembers(orgId);
 
+            req.setAttribute("orgId", orgId);
             req.setAttribute("organization", organization);
             req.setAttribute("members", members);
 

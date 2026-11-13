@@ -21,7 +21,7 @@
 | `ErrorLoggingFilter` | `/*` | логирует необработанные исключения |
 | `EncodingFilter` | `/*` | UTF-8 для запроса/ответа |
 | `CsrfFilter` | `/*` | кладёт токен в сессию; проверяет `csrfToken` на POST |
-| `AuthFilter` | `/`, `/create-organization`, `/join-organization`, `/licenses/*`, `/org/*`, `/admin`, `/admin/*` | требует аутентификации, иначе → `/login` |
+| `AuthFilter` | `/`, `/create-organization`, `/join-organization`, `/organizations`, `/onboarding`, `/org/*`, `/admin`, `/admin/*` | требует аутентификации, иначе → `/login` |
 | `OrgMembershipFilter` | `/org/*` | требует, чтобы пользователь был участником организации из пути (`/org/{orgId}/...`); иначе `403` |
 | `OrgRoleFilter` | `/org/*` | для страницы настроек `/org/{id}` и действий `reissue-code`/`promote`/`lower` требует роль `ADMIN` **именно в этой организации** (роль в другой организации не подходит); иначе `403`. Раздел `licenses` пропускается (доступен и `MANAGER`) |
 | `SuperadminFilter` | `/admin`, `/admin/*` | только `SUPERADMIN`, иначе `403` |
@@ -44,14 +44,16 @@
 
 | Метод | Путь | Результат |
 |---|---|---|
-| GET | `/` | без сессии → `302 /login`; иначе `home/index.jsp` (`organizations`, `rolesByOrgId`) |
+| GET | `/` | без сессии → `302 /login`; иначе `home/index.jsp` (данные пользователя) |
+| GET | `/organizations` | без сессии → `302 /login`; иначе `home/organizations.jsp` (`organizations`, `rolesByOrgId`) |
+| GET | `/onboarding` | без сессии → `302 /login`; иначе `home/onboarding.jsp` |
 
 ## Организации
 
 | Метод | Путь | Параметры | Доступ | Результат |
 |---|---|---|---|---|
-| POST | `/create-organization` | `name` | авторизован | ок → `302 /org/{id}/licenses`; ошибка → `home/index.jsp` + `error` |
-| POST | `/join-organization` | `joinCode` | авторизован | ок → `302 /org/{id}/licenses`; ошибка → `home/index.jsp` + `error` |
+| POST | `/create-organization` | `name` | авторизован | ок → `302 /org/{id}/licenses`; ошибка → `home/onboarding.jsp` + `error` |
+| POST | `/join-organization` | `joinCode` | авторизован | ок → `302 /org/{id}/licenses`; ошибка → `home/onboarding.jsp` + `error` |
 | GET | `/org/{orgId}` | — | `ADMIN` | `org/settings.jsp` (`organization`, `members`); нет → `404` |
 | POST | `/org/{orgId}/reissue-code` | — | `ADMIN` | перевыпуск join-кода → `302 /org/{orgId}` |
 | POST | `/org/{orgId}/promote` | `userId` | `ADMIN` | повысить до `ADMIN` → `302 /org/{orgId}` |
@@ -95,8 +97,8 @@
 
 | Метод | Путь | Параметры | Результат |
 |---|---|---|---|
-| GET | `/licenses/types` | — | `licenses/types.jsp` (`types`) |
-| POST | `/licenses/types` | `code`, `name` | ок → `302 /licenses/types`; ошибка → `types.jsp` + `error` |
+| GET | `/org/{orgId}/licenses/types` | — | `licenses/types.jsp` (`types`) |
+| POST | `/org/{orgId}/licenses/types` | `code`, `name` | ок → `302 /org/{orgId}/licenses/types`; ошибка → `types.jsp` + `error` |
 
 `code` приводится к верхнему регистру и уникален; `name` обязателен.
 

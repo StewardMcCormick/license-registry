@@ -49,7 +49,11 @@
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>AuthFilter</filter-name>
-		<url-pattern>/licenses/*</url-pattern>
+		<url-pattern>/organizations</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>AuthFilter</filter-name>
+		<url-pattern>/onboarding</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>AuthFilter</filter-name>
@@ -115,5 +119,12 @@
 		<error-code>500</error-code>
 		<location>/error</location>
 	</error-page>
+
+	<jsp-config>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<page-encoding>UTF-8</page-encoding>
+		</jsp-property-group>
+	</jsp-config>
 
 </web-app>

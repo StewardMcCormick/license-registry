@@ -1,14 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <html>
-<head><title>Типы лицензий</title></head>
+<head><meta charset="UTF-8"><title>Типы лицензий</title></head>
 <body>
-<h1>Реестр лицензий</h1>
-
-<p>
-    <a href="${pageContext.request.contextPath}/licenses">Лицензии</a> |
-    <strong>Типы лицензий</strong>
-</p>
+<%@ include file="/WEB-INF/views/layout/global-navbar.jsp" %>
+<%@ include file="/WEB-INF/views/layout/org-navbar.jsp" %>
+<h1>Типы лицензий</h1>
 
 <c:if test="${not empty error}">
     <p style="color:red">${error}</p>
@@ -25,7 +22,7 @@
 </table>
 
 <h2>Добавить тип лицензии</h2>
-<form method="post" action="${pageContext.request.contextPath}/licenses/types">
+<form method="post" action="${pageContext.request.contextPath}/org/${orgId}/licenses/types">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
     <input type="text" name="code" placeholder="Код типа (например, SOFTWARE)" required>
     <input type="text" name="name" placeholder="Название типа (например, Лицензия на ПО)" required>
