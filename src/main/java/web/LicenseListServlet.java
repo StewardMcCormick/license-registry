@@ -18,7 +18,7 @@ import java.util.UUID;
 @WebServlet("/licenses")
 public class LicenseListServlet extends BaseServlet {
 
-    @Override
+    @Override // TODO: rewrite on AJAX
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         CurrentUser currentUser = currentUser(request);

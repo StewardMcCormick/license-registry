@@ -31,11 +31,11 @@ public class OrgRoleFilter implements Filter {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-
-        if (currentUser.isSuperadmin()) {
-            chain.doFilter(request, response);
-            return;
-        }
+// TODO: нужно ли
+//        if (currentUser.isSuperadmin()) {
+//            chain.doFilter(request, response);
+//            return;
+//        }
 
         ServiceRegistry services = (ServiceRegistry) request.getServletContext()
                 .getAttribute(ServiceRegistry.CONTEXT_ATTRIBUTE);

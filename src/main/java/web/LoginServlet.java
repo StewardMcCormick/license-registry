@@ -36,7 +36,7 @@ public class LoginServlet extends BaseServlet {
             List<OrganizationMember> memberships = services().getOrganizationService()
                     .getMembershipsByUserId(user.getId());
             if (!memberships.isEmpty()) {
-                OrganizationMember membership = memberships.get(0);
+                OrganizationMember membership = memberships.getFirst();
                 currentUser.setOrgId(membership.getOrgId());
                 currentUser.setMemberRole(membership.getMemberRole());
             }

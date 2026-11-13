@@ -20,7 +20,7 @@ public class RegisterServlet extends BaseServlet {
         render(request, response, "auth/register.jsp");
     }
 
-    @Override
+    @Override // TODO: rewrite to AJAX
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
