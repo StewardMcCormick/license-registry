@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import static web.util.View.render;
+
 @WebServlet("/admin")
 public class AdminDashboardServlet extends BaseServlet {
 

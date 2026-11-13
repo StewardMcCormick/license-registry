@@ -8,6 +8,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import static web.util.View.redirect;
+import static web.util.View.render;
+
 @WebServlet("/licenses/types")
 public class LicenseTypeListServlet extends BaseServlet {
 

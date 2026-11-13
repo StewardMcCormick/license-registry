@@ -83,6 +83,10 @@ public class OrganizationService {
         return organizationRepository.findAll();
     }
 
+    public List<Organization> getByUserId(UUID userId) {
+        return organizationRepository.getByUserId(userId);
+    }
+
     public List<OrganizationMember> getMembers(UUID orgId) {
         return memberRepository.findByOrgId(orgId);
     }

@@ -9,59 +9,99 @@ import model.Organization;
 import model.OrganizationMember;
 import util.ParamUtil;
 import util.PathUtil;
+import web.controller.LicenseController;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import static web.util.View.*;
+
 @WebServlet("/org/*")
 public class OrganizationServlet extends BaseServlet {
 
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		UUID orgId = PathUtil.segmentAsUuid(PathUtil.segments(request.getPathInfo()), 0);
-		if (orgId == null) {
-			renderError(request, response, HttpServletResponse.SC_NOT_FOUND, "Организация не найдена");
-			return;
-		}
+    private LicenseController licenseController;
 
-		try {
-			Organization organization = services().getOrganizationService().getById(orgId);
-			List<OrganizationMember> members = services().getOrganizationService().getMembers(orgId);
-			request.setAttribute("organization", organization);
-			request.setAttribute("members", members);
-			render(request, response, "org/settings.jsp");
-		} catch (NotFoundException e) {
-			renderError(request, response, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-		}
-	}
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        licenseController = new LicenseController(services());
+    }
 
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String[] segments = PathUtil.segments(request.getPathInfo());
-		UUID orgId = PathUtil.segmentAsUuid(segments, 0);
-		String action = PathUtil.segment(segments, 1);
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String[] segments = PathUtil.segments(req.getPathInfo());
+        UUID orgId = PathUtil.segmentAsUuid(segments, 0);
+        if (orgId == null) {
+            renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Организация не найдена");
+            return;
+        }
 
-		if (orgId == null) {
-			renderError(request, response, HttpServletResponse.SC_NOT_FOUND, "Организация не найдена");
-			return;
-		}
+        switch (PathUtil.segment(segments, 1)) {
+            case "licenses" -> licenseController.doGet(req, resp, segments, orgId);
+            case null -> showOrganization(req, resp, orgId);
+            default -> renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Страница не найдена");
+        }
+    }
 
-		UUID userId = ParamUtil.parseUuid(request.getParameter("userId"));
-		if (userId == null) {
-			return;
-		}
+    private void showOrganization(HttpServletRequest req, HttpServletResponse resp, UUID orgId) throws ServletException, IOException {
+        try {
+            Organization organization = services().getOrganizationService().getById(orgId);
+            List<OrganizationMember> members = services().getOrganizationService().getMembers(orgId);
 
-		if ("reissue-code".equals(action)) {
-			services().getOrganizationService().reissueJoinCode(orgId);
-		} else if ("promote".equals(action)) {
-			services().getOrganizationService().promoteToAdmin(orgId, userId);
-		} else if ("lower".equals(action)) {
-			services().getOrganizationService().lowerToManager(orgId, userId);
-		}
+            req.setAttribute("organization", organization);
+            req.setAttribute("members", members);
 
-		redirect(request, response, "/org/" + orgId);
-	}
+            render(req, resp, "org/settings.jsp");
+        } catch (NotFoundException e) {
+            renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Организация не найдена");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String[] segments = PathUtil.segments(req.getPathInfo());
+        UUID orgId = PathUtil.segmentAsUuid(segments, 0);
+        if (orgId == null) {
+            renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Организация не найдена");
+            return;
+        }
+
+        switch (PathUtil.segment(segments, 1)) {
+            case "licenses" -> licenseController.doPost(req, resp, segments, orgId);
+            case null -> handleOrganizationAction(req, resp, segments, orgId);
+            default -> renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Страница не найдена");
+        }
+    }
+
+    private void handleOrganizationAction(HttpServletRequest req, HttpServletResponse resp, String[] segments, UUID orgId) throws IOException, ServletException {
+        String action = PathUtil.segment(segments, 1);
+
+        switch (action == null ? "" : action) {
+            case "reissue-code" -> services().getOrganizationService().reissueJoinCode(orgId); // TODO: rewrite on AJAX
+            case "promote", "lower" -> {
+                UUID userId = ParamUtil.parseUuid(req.getParameter("userId"));
+                if (userId == null) {
+                    renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Пользователь не найден");
+                    return;
+                }
+
+                handleUserRoleRequest(action, orgId, userId);               // TODO: rewrite on AJAX
+            }
+            default -> {
+                renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Страница не найдена");
+                return;
+            }
+        }
+
+        redirect(req, resp, "/org/" + orgId);
+    }
+
+    private void handleUserRoleRequest(String action, UUID orgId, UUID userId) {
+        if (action.equals("promote")) {
+            services().getOrganizationService().promoteToAdmin(orgId, userId);
+        } else {
+            services().getOrganizationService().lowerToManager(orgId, userId);
+        }
+    }
 }

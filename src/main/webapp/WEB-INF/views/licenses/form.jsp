@@ -8,7 +8,7 @@
     <p style="color:red">${error}</p>
 </c:if>
 
-<form method="post" action="${pageContext.request.contextPath}${not empty license ? '/licenses/'.concat(license.id).concat('/edit') : '/licenses/new'}">
+<form method="post" action="${pageContext.request.contextPath}${not empty license ? '/org/'.concat(license.orgId).concat('/licenses/').concat(license.id).concat('/edit') : '/org/'.concat(orgId).concat('/licenses/new')}">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
     <p><input type="text" name="title" placeholder="Название" value="${license.title}" required></p>
     <p>Дата выдачи: <input type="date" name="issuedAt" value="${license.issuedAt}" required></p>

@@ -10,6 +10,8 @@ import util.PathUtil;
 import java.io.IOException;
 import java.util.UUID;
 
+import static web.util.View.redirect;
+
 @WebServlet("/admin/*")
 public class AdminActionServlet extends BaseServlet {
 

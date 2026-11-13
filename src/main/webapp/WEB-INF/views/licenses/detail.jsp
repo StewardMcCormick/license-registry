@@ -16,23 +16,23 @@
     <c:forEach var="tag" items="${tags}">${tag.name} </c:forEach>
 </p>
 
-<p><a href="${pageContext.request.contextPath}/licenses/${license.id}/edit">Редактировать</a></p>
+<p><a href="${pageContext.request.contextPath}/org/${license.orgId}/licenses/${license.id}/edit">Редактировать</a></p>
 
-<form method="post" action="${pageContext.request.contextPath}/licenses/${license.id}/cancel">
+<form method="post" action="${pageContext.request.contextPath}/org/${license.orgId}/licenses/${license.id}/cancel">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
     <button type="submit">Отменить лицензию</button>
 </form>
 
-<form method="post" action="${pageContext.request.contextPath}/licenses/${license.id}/restore">
+<form method="post" action="${pageContext.request.contextPath}/org/${license.orgId}/licenses/${license.id}/restore">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
     <button type="submit">Восстановить</button>
 </form>
 
-<form method="post" action="${pageContext.request.contextPath}/licenses/${license.id}/delete">
+<form method="post" action="${pageContext.request.contextPath}/org/${license.orgId}/licenses/${license.id}/delete">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
     <button type="submit">Удалить</button>
 </form>
 
-<p><a href="${pageContext.request.contextPath}/licenses">Назад к списку</a></p>
+<p><a href="${pageContext.request.contextPath}/org/${license.orgId}/licenses">Назад к списку</a></p>
 </body>
 </html>

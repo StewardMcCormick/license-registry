@@ -7,6 +7,8 @@ import util.SessionUtil;
 
 import java.io.IOException;
 
+import static web.util.View.redirect;
+
 @WebServlet("/logout")
 public class LogoutServlet extends BaseServlet {
 

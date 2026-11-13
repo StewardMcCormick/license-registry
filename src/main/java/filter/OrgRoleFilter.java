@@ -9,6 +9,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.MemberRole;
+import service.OrganizationService;
 import util.CurrentUser;
 import util.PathUtil;
 import util.SessionUtil;
@@ -25,29 +26,37 @@ public class OrgRoleFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         CurrentUser currentUser = SessionUtil.getCurrentUser(request);
-        UUID orgId = PathUtil.segmentAsUuid(PathUtil.segments(request.getPathInfo()), 0);
-
-        if (currentUser == null || orgId == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        if (currentUser == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-// TODO: нужно ли
-//        if (currentUser.isSuperadmin()) {
-//            chain.doFilter(request, response);
-//            return;
-//        }
 
-        ServiceRegistry services = (ServiceRegistry) request.getServletContext()
-                .getAttribute(ServiceRegistry.CONTEXT_ATTRIBUTE);
-        MemberRole role = services.getOrganizationService()
-                .findMemberRole(orgId, currentUser.getUserId())
-                .orElse(null);
+        String[] segments = PathUtil.segments(request.getPathInfo());
+        UUID orgId = PathUtil.segmentAsUuid(segments, 0);
+        if (orgId == null) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-        if (role != MemberRole.ADMIN) {
+        String section = PathUtil.segment(segments, 1);
+        boolean adminOnly = section == null || section.isBlank()
+                || "reissue-code".equals(section)
+                || "promote".equals(section)
+                || "lower".equals(section);
+
+        if (adminOnly && !isAdminOf(request, currentUser.getUserId(), orgId)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Доступно только администратору организации");
             return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    private boolean isAdminOf(HttpServletRequest request, UUID userId, UUID orgId) {
+        ServiceRegistry serviceRegistry = (ServiceRegistry) request.getServletContext()
+                .getAttribute(ServiceRegistry.CONTEXT_ATTRIBUTE);
+        OrganizationService organizationService = serviceRegistry.getOrganizationService();
+        return organizationService.findMemberRole(orgId, userId)
+                .orElse(null) == MemberRole.ADMIN;
     }
 }

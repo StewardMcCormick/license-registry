@@ -4,7 +4,7 @@ import model.GlobalRole;
 import model.MemberRole;
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.util.*;
 
 public class CurrentUser implements Serializable {
 
@@ -12,7 +12,7 @@ public class CurrentUser implements Serializable {
     private final String email;
     private final String fullName;
     private final GlobalRole globalRole;
-    private UUID orgId;
+    private final Map<UUID, MemberRole> memberRoleMap = new HashMap<>();
     private MemberRole memberRole;
 
     public CurrentUser(UUID userId, String email, String fullName, GlobalRole globalRole) {
@@ -42,19 +42,19 @@ public class CurrentUser implements Serializable {
         return globalRole == GlobalRole.SUPERADMIN;
     }
 
-    public UUID getOrgId() {
-        return orgId;
-    }
-
-    public void setOrgId(UUID orgId) {
-        this.orgId = orgId;
-    }
-
     public MemberRole getMemberRole() {
         return memberRole;
     }
 
     public void setMemberRole(MemberRole memberRole) {
         this.memberRole = memberRole;
+    }
+
+    public Map<UUID, MemberRole> getMemberRoleMap() {
+        return memberRoleMap;
+    }
+
+    public void addMemberRoleMap(UUID orgId, MemberRole role) {
+        memberRoleMap.put(orgId, role);
     }
 }

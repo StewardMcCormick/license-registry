@@ -5,6 +5,6 @@
 <h1>Ошибка</h1>
 <p>Статус: ${status}</p>
 <p>${message}</p>
-<a href="${pageContext.request.contextPath}/licenses">На главную</a>
+<a href="${pageContext.request.contextPath}/">На главную</a>
 </body>
 </html>

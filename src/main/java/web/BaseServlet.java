@@ -1,6 +1,7 @@
 package web;
 
 import config.ServiceRegistry;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,10 +16,17 @@ import java.util.logging.Logger;
 
 public abstract class BaseServlet extends HttpServlet {
 
-    private static final Logger LOGGER = Logger.getLogger(BaseServlet.class.getName());
+    private ServiceRegistry services;
 
-    protected ServiceRegistry services() {
-        return (ServiceRegistry) getServletContext().getAttribute(ServiceRegistry.CONTEXT_ATTRIBUTE);
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        services = (ServiceRegistry) getServletContext().getAttribute(ServiceRegistry.CONTEXT_ATTRIBUTE);
+    }
+
+    public ServiceRegistry services() {
+        return services;
     }
 
     protected CurrentUser currentUser(HttpServletRequest request) {
@@ -26,26 +34,12 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected boolean belongsToCurrentOrg(CurrentUser user, UUID orgId) {
-        return user.isSuperadmin() || orgId.equals(user.getOrgId());
-    }
+        for (UUID id : user.getMemberRoleMap().keySet()) {
+            if (id.equals(orgId)) {
+                return true;
+            }
+        }
 
-    protected void render(HttpServletRequest request, HttpServletResponse response, String viewPath)
-            throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/" + viewPath).forward(request, response);
-    }
-
-    protected void redirect(HttpServletRequest request, HttpServletResponse response, String path)
-            throws IOException {
-        response.sendRedirect(request.getContextPath() + path);
-    }
-
-    protected void renderError(HttpServletRequest request, HttpServletResponse response, int status, String message)
-            throws ServletException, IOException {
-        LOGGER.log(Level.WARNING, "Ошибка " + status + " на " + request.getMethod() + " "
-                + request.getRequestURI() + ": " + message);
-        response.setStatus(status);
-        request.setAttribute("status", status);
-        request.setAttribute("message", message);
-        render(request, response, "error.jsp");
+        return false;
     }
 }

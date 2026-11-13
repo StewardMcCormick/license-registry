@@ -9,10 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class JdbcOrganizationRepository implements OrganizationRepository {
 
@@ -108,6 +105,31 @@ public class JdbcOrganizationRepository implements OrganizationRepository {
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RepositoryException("Не удалось удалить организацию", e);
+        }
+    }
+
+    @Override
+    public List<Organization> getByUserId(UUID userId) {
+        String sql = """
+                SELECT o.id, o.name, o.join_code, o.created_at
+                FROM organizations o JOIN organization_member om
+                    ON o.id = om.org_id
+                WHERE om.user_id = ?
+                """;
+        List<Organization> organizations = new ArrayList<>();
+
+        try (Connection connection = DatabaseConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setObject(1, userId);
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()) {
+                organizations.add(mapRow(rs));
+            }
+
+            return organizations;
+        } catch (SQLException e) {
+            throw new RepositoryException("Не удалось загрузить список организаций", e);
         }
     }
 

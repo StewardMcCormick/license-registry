@@ -5,13 +5,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.MemberRole;
 import model.OrganizationMember;
 import model.User;
 import util.CurrentUser;
 import util.SessionUtil;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static web.util.View.redirect;
+import static web.util.View.render;
 
 @WebServlet("/login")
 public class LoginServlet extends BaseServlet {
@@ -35,14 +42,13 @@ public class LoginServlet extends BaseServlet {
 
             List<OrganizationMember> memberships = services().getOrganizationService()
                     .getMembershipsByUserId(user.getId());
-            if (!memberships.isEmpty()) {
-                OrganizationMember membership = memberships.getFirst();
-                currentUser.setOrgId(membership.getOrgId());
-                currentUser.setMemberRole(membership.getMemberRole());
+
+            for (OrganizationMember m : memberships) {
+                currentUser.addMemberRoleMap(m.getOrgId(), m.getMemberRole());
             }
 
             SessionUtil.login(request, currentUser);
-            redirect(request, response, currentUser.getOrgId() == null ? "/onboarding" : "/licenses");
+            redirect(request, response, "/");
         } catch (ValidationException e) {
             request.setAttribute("error", e.getMessage());
             render(request, response, "auth/login.jsp");

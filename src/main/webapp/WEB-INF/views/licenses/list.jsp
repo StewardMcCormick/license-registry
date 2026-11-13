@@ -10,9 +10,9 @@
     <a href="${pageContext.request.contextPath}/licenses/types">Типы лицензий</a>
 </p>
 
-<p><a href="${pageContext.request.contextPath}/licenses/new">Добавить лицензию</a></p>
+<p><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/new">Добавить лицензию</a></p>
 
-<form method="get" action="${pageContext.request.contextPath}/licenses">
+<form method="get" action="${pageContext.request.contextPath}/org/${orgId}/licenses">
     <select name="status">
         <option value="">Любой статус</option>
         <option value="ACTIVE">ACTIVE</option>
@@ -43,7 +43,7 @@
             <td>${license.title}</td>
             <td>${license.status}</td>
             <td>${license.expiresAt}</td>
-            <td><a href="${pageContext.request.contextPath}/licenses/${license.id}">Открыть</a></td>
+            <td><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/${license.id}">Открыть</a></td>
         </tr>
     </c:forEach>
 </table>

@@ -43,6 +43,6 @@
     </c:forEach>
 </table>
 
-<p><a href="${pageContext.request.contextPath}/licenses">К лицензиям</a></p>
+<p><a href="${pageContext.request.contextPath}/org/${organization.id}/licenses">К лицензиям</a></p>
 </body>
 </html>

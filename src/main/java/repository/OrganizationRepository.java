@@ -16,6 +16,8 @@ public interface OrganizationRepository {
 
     List<Organization> findAll();
 
+    List<Organization> getByUserId(UUID userId);
+
     void update(Organization organization);
 
     void delete(UUID id);

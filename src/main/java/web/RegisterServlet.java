@@ -11,6 +11,9 @@ import util.SessionUtil;
 
 import java.io.IOException;
 
+import static web.util.View.redirect;
+import static web.util.View.render;
+
 @WebServlet("/register")
 public class RegisterServlet extends BaseServlet {
 
@@ -33,7 +36,7 @@ public class RegisterServlet extends BaseServlet {
             User user = services().getAuthService().register(email, password, lastName, firstName, middleName);
             SessionUtil.login(request, new CurrentUser(user.getId(), user.getEmail(),
                     user.getLastName() + " " + user.getFirstName(), user.getGlobalRole()));
-            redirect(request, response, "/onboarding");
+            redirect(request, response, "/");
         } catch (ValidationException e) {
             request.setAttribute("error", e.getMessage());
             render(request, response, "auth/register.jsp");
