@@ -18,7 +18,7 @@
 - **Java Servlet API**
 - **JSP + JSTL**
 - **JDBC (`PreparedStatement`)**
-- **PostgreSQL 16**
+- **PostgreSQL 18**
 - **HTML5 / CSS3**
 - **JS + AJAX**
 - **Gradle 9.8.2**
@@ -116,6 +116,7 @@
 |---|---|---|---|
 | `id` | `BIGSERIAL` | PK | |
 | `code` | `VARCHAR(50)` | UNIQUE, NOT NULL | `SOFTWARE`, `PERMIT`, `CERTIFICATE`, … |
+| `name` | `VARCHAR(255)` | NOT NULL | человекочитаемое название типа; отображается как `КОД-Название` |
 
 Название лицензии хранится в `License.title`; тип — только классификация.
 
@@ -180,24 +181,6 @@
 
 ---
 
-### AuditLog — журнал действий
-
-| Поле | Тип | Ограничения | Комментарий |
-|---|---|---|---|
-| `id` | `BIGSERIAL` | PK | |
-| `actor_user_id` | `BIGINT` | FK → `users.id`, NULL | `NULL` = система/воркер |
-| `entity_type` | `VARCHAR(30)` | NOT NULL | `LICENSE`, `ORG`, `USER` |
-| `entity_id` | `BIGINT` | NOT NULL | id сущности |
-| `action` | `VARCHAR(30)` | NOT NULL | `CREATE`, `UPDATE`, `DELETE`, `STATUS_CHANGED`, `JOIN_CODE_REGENERATED`, … |
-| `payload` | `JSONB` | NULL | детали изменения |
-| `created_at` | `TIMESTAMPTZ` | NOT NULL, DEFAULT `now()` | |
-
-**Индексы:** `(entity_type, entity_id)`, `(created_at DESC)`.
-
-**Связи:** `N—1` с `User` (`actor`, nullable).
-
----
-
 ### Карта связей
 
 ```
@@ -211,10 +194,9 @@ License N──1 Organization
 License N──M LicenseType      (license_type_link)
 License N──M Tag              (license_tag)
 
-AuditLog N──1 User
 ```
 
-**O2M:** `Organization → License`, `Organization → Tag`, `User → AuditLog`.  
+**O2M:** `Organization → License`, `Organization → Tag`.  
 **M2M:** `User ↔ Organization`, `License ↔ LicenseType`, `License ↔ Tag`.
 
 ---
@@ -240,7 +222,6 @@ AuditLog N──1 User
 5. `CANCELLED` — только вручную; `ACTIVE / EXPIRING / EXPIRED` вычисляются сервисом и воркером, `CANCELLED` не перетирается.
 6. Теги уникальны в рамках организации; при вводе нового имени — создаётся автоматически.
 7. `LicenseType` — глобальный справочник; удаление типа запрещено, пока он используется (`ON DELETE RESTRICT`).
-8. `AuditLog` не удаляется.
 
 ---
 
