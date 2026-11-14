@@ -1,27 +1,27 @@
 package config;
 
-import repository.JdbcLicenseRepository;
-import repository.JdbcLicenseTagRepository;
-import repository.JdbcLicenseTypeLinkRepository;
-import repository.JdbcLicenseTypeRepository;
-import repository.JdbcOrganizationMemberRepository;
-import repository.JdbcOrganizationRepository;
-import repository.JdbcTagRepository;
-import repository.JdbcUserRepository;
-import repository.LicenseRepository;
-import repository.LicenseTagRepository;
-import repository.LicenseTypeLinkRepository;
-import repository.LicenseTypeRepository;
-import repository.OrganizationMemberRepository;
-import repository.OrganizationRepository;
-import repository.TagRepository;
-import repository.UserRepository;
-import service.AdminService;
-import service.AuthService;
-import service.LicenseService;
-import service.LicenseTypeService;
-import service.OrganizationService;
-import service.TagService;
+import repository.license.JdbcLicenseRepository;
+import repository.license.JdbcLicenseTagRepository;
+import repository.license.JdbcLicenseTypeLinkRepository;
+import repository.license.type.JdbcLicenseTypeRepository;
+import repository.organization.JdbcOrganizationMemberRepository;
+import repository.organization.JdbcOrganizationRepository;
+import repository.tag.JdbcTagRepository;
+import repository.user.JdbcUserRepository;
+import repository.license.LicenseRepository;
+import repository.license.LicenseTagRepository;
+import repository.license.LicenseTypeLinkRepository;
+import repository.license.type.LicenseTypeRepository;
+import repository.organization.OrganizationMemberRepository;
+import repository.organization.OrganizationRepository;
+import repository.tag.TagRepository;
+import repository.user.UserRepository;
+import service.admin.AdminService;
+import service.auth.AuthService;
+import service.license.LicenseService;
+import service.license.type.LicenseTypeService;
+import service.organization.OrganizationService;
+import service.tag.TagService;
 
 public class ServiceRegistry {
 

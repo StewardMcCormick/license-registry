@@ -9,11 +9,11 @@
 </c:if>
 <form method="post" action="${pageContext.request.contextPath}/register">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-    <p><input type="email" name="email" placeholder="Email" required></p>
+    <p><input type="email" name="email" placeholder="Email" value="<c:out value='${email}'/>" required></p>
     <p><input type="password" name="password" placeholder="Пароль" required></p>
-    <p><input type="text" name="lastName" placeholder="Фамилия" required></p>
-    <p><input type="text" name="firstName" placeholder="Имя" required></p>
-    <p><input type="text" name="middleName" placeholder="Отчество"></p>
+    <p><input type="text" name="lastName" placeholder="Фамилия" value="<c:out value='${lastName}'/>" required></p>
+    <p><input type="text" name="firstName" placeholder="Имя" value="<c:out value='${firstName}'/>" required></p>
+    <p><input type="text" name="middleName" placeholder="Отчество" value="<c:out value='${middleName}'/>"></p>
     <button type="submit">Зарегистрироваться</button>
 </form>
 <p><a href="${pageContext.request.contextPath}/login">Уже есть аккаунт? Войти</a></p>

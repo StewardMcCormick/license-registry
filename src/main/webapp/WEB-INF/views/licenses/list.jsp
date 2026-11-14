@@ -12,10 +12,10 @@
 <form method="get" action="${pageContext.request.contextPath}/org/${orgId}/licenses">
     <select name="status">
         <option value="">Любой статус</option>
-        <option value="ACTIVE">ACTIVE</option>
-        <option value="EXPIRING">EXPIRING</option>
-        <option value="EXPIRED">EXPIRED</option>
-        <option value="CANCELLED">CANCELLED</option>
+        <option value="ACTIVE"<c:if test="${param.status eq 'ACTIVE'}"> selected</c:if>>Действует</option>
+        <option value="EXPIRING"<c:if test="${param.status eq 'EXPIRING'}"> selected</c:if>>Истекает</option>
+        <option value="EXPIRED"<c:if test="${param.status eq 'EXPIRED'}"> selected</c:if>>Просрочена</option>
+        <option value="CANCELLED"<c:if test="${param.status eq 'CANCELLED'}"> selected</c:if>>Отменена</option>
     </select>
     <select name="typeId">
         <option value="">Любой тип</option>

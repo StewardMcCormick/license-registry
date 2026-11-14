@@ -6,7 +6,7 @@
 
     <filter>
         <filter-name>ErrorLoggingFilter</filter-name>
-        <filter-class>filter.ErrorLoggingFilter</filter-class>
+        <filter-class>filter.common.ErrorLoggingFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>ErrorLoggingFilter</filter-name>
@@ -15,7 +15,7 @@
 
     <filter>
         <filter-name>EncodingFilter</filter-name>
-        <filter-class>filter.EncodingFilter</filter-class>
+        <filter-class>filter.common.EncodingFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>EncodingFilter</filter-name>
@@ -24,7 +24,7 @@
 
     <filter>
         <filter-name>CsrfFilter</filter-name>
-        <filter-class>filter.CsrfFilter</filter-class>
+        <filter-class>filter.common.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>
@@ -33,7 +33,7 @@
 
     <filter>
         <filter-name>AuthFilter</filter-name>
-        <filter-class>filter.AuthFilter</filter-class>
+        <filter-class>filter.auth.AuthFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>AuthFilter</filter-name>
@@ -66,7 +66,7 @@
 
     <filter>
         <filter-name>OrgMembershipFilter</filter-name>
-        <filter-class>filter.OrgMembershipFilter</filter-class>
+        <filter-class>filter.organization.OrgMembershipFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>OrgMembershipFilter</filter-name>
@@ -75,7 +75,7 @@
 
     <filter>
         <filter-name>OrgRoleFilter</filter-name>
-        <filter-class>filter.OrgRoleFilter</filter-class>
+        <filter-class>filter.organization.OrgRoleFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>OrgRoleFilter</filter-name>
@@ -84,7 +84,7 @@
 
     <filter>
         <filter-name>SuperadminFilter</filter-name>
-        <filter-class>filter.SuperadminFilter</filter-class>
+        <filter-class>filter.auth.SuperadminFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SuperadminFilter</filter-name>
@@ -97,6 +97,10 @@
 
     <error-page>
         <exception-type>java.lang.Exception</exception-type>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>401</error-code>
         <location>/error</location>
     </error-page>
     <error-page>

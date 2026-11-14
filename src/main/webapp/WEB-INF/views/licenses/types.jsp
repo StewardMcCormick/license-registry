@@ -22,11 +22,13 @@
 </table>
 
 <h2>Добавить тип лицензии</h2>
-<form method="post" action="${pageContext.request.contextPath}/org/${orgId}/licenses/types">
-    <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-    <input type="text" name="code" placeholder="Код типа (например, SOFTWARE)" required>
-    <input type="text" name="name" placeholder="Название типа (например, Лицензия на ПО)" required>
-    <button type="submit">Добавить</button>
-</form>
+<c:if test="${orgRole eq 'ADMIN' or sessionScope.currentUser.superadmin}">
+    <form method="post" action="${pageContext.request.contextPath}/org/${orgId}/licenses/types">
+        <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
+        <input type="text" name="code" placeholder="Код типа (например, SOFTWARE)" required>
+        <input type="text" name="name" placeholder="Название типа (например, Лицензия на ПО)" required>
+        <button type="submit">Добавить</button>
+    </form>
+</c:if>
 </body>
 </html>

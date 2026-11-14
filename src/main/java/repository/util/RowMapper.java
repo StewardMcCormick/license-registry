@@ -1,7 +1,7 @@
 package repository.util;
 
-import model.GlobalRole;
-import model.User;
+import model.user.GlobalRole;
+import model.user.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

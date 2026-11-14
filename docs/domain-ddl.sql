@@ -69,14 +69,19 @@ CREATE TABLE organization_member
 -- ------------------------------------------------------------
 CREATE TABLE license_types
 (
-    id   UUID         NOT NULL DEFAULT uuidv7(),
-    code VARCHAR(50)  NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    id     UUID         NOT NULL DEFAULT uuidv7(),
+    org_id UUID         NOT NULL,
+    code   VARCHAR(50)  NOT NULL,
+    name   VARCHAR(255) NOT NULL,
     --------------------------------------------------------
     CONSTRAINT pk_license_types
         PRIMARY KEY (id),
-    CONSTRAINT uq_license_types_code
-        UNIQUE (code)
+    CONSTRAINT fk_license_types_org
+        FOREIGN KEY (org_id)
+            REFERENCES organizations (id)
+            ON DELETE CASCADE,
+    CONSTRAINT uq_license_types_org_code
+        UNIQUE (org_id, code)
 );
 
 -- ------------------------------------------------------------
