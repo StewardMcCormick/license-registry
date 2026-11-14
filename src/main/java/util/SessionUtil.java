@@ -11,7 +11,9 @@ public class SessionUtil {
     }
 
     public static void login(HttpServletRequest request, CurrentUser user) {
-        request.getSession(true).setAttribute(CURRENT_USER_ATTRIBUTE, user);
+        HttpSession session = request.getSession(true);
+        request.changeSessionId();
+        session.setAttribute(CURRENT_USER_ATTRIBUTE, user);
     }
 
     public static CurrentUser getCurrentUser(HttpServletRequest request) {

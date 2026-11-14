@@ -20,15 +20,19 @@
     <select name="typeId">
         <option value="">Любой тип</option>
         <c:forEach var="type" items="${types}">
-            <option value="${type.id}">${type.displayName}</option>
+            <option value="${type.id}"><c:out value="${type.displayName}"/></option>
         </c:forEach>
     </select>
-    <select name="tagId">
-        <option value="">Любой тег</option>
+    <fieldset>
+        <legend>Теги</legend>
         <c:forEach var="tag" items="${tags}">
-            <option value="${tag.id}">${tag.name}</option>
+            <label>
+                <input type="checkbox" name="tagIds" value="${tag.id}"<c:if test="${not empty selectedTagIds and selectedTagIds.contains(tag.id)}"> checked</c:if>>
+                <c:out value="${tag.name}"/>
+            </label>
+            <br>
         </c:forEach>
-    </select>
+    </fieldset>
     <input type="text" name="q" placeholder="Поиск по названию">
     <button type="submit">Найти</button>
 </form>
@@ -37,9 +41,9 @@
     <tr><th>Название</th><th>Статус</th><th>Истекает</th><th></th></tr>
     <c:forEach var="license" items="${licenses}">
         <tr>
-            <td>${license.title}</td>
-            <td>${license.status}</td>
-            <td>${license.expiresAt}</td>
+            <td><c:out value="${license.title}"/></td>
+            <td><c:out value="${license.status}"/></td>
+            <td><c:out value="${license.expiresAt}"/></td>
             <td><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/${license.id}">Открыть</a></td>
         </tr>
     </c:forEach>

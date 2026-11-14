@@ -5,10 +5,13 @@ import exception.ValidationException;
 import model.Tag;
 import repository.TagRepository;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.UUID;
 
 public class TagService {
+
+    private static final int MAX_NAME_LENGTH = 50;
 
     private final TagRepository tagRepository;
 
@@ -16,10 +19,10 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public Tag getOrCreate(UUID orgId, String name) {
+    public Tag getOrCreate(Connection connection, UUID orgId, String name) {
         String normalized = normalize(name);
-        return tagRepository.findByOrgIdAndName(orgId, normalized)
-                .orElseGet(() -> tagRepository.create(new Tag(orgId, normalized)));
+        return tagRepository.findByOrgIdAndName(connection, orgId, normalized)
+                .orElseGet(() -> tagRepository.create(connection, new Tag(orgId, normalized)));
     }
 
     public Tag getById(UUID id) {
@@ -52,6 +55,10 @@ public class TagService {
         if (name == null || name.isBlank()) {
             throw new ValidationException("Название тега обязательно");
         }
-        return name.trim();
+        String normalized = name.trim();
+        if (normalized.length() > MAX_NAME_LENGTH) {
+            throw new ValidationException("Название тега не должно превышать " + MAX_NAME_LENGTH + " символов");
+        }
+        return normalized;
     }
 }

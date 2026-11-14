@@ -73,7 +73,7 @@
 |---|---|---|---|
 | `id` | `BIGSERIAL` | PK | |
 | `email` | `VARCHAR(255)` | UNIQUE, NOT NULL | логин |
-| `password_hash` | `VARCHAR(255)` | NOT NULL | BCrypt |
+| `password_hash` | `VARCHAR(255)` | NOT NULL | SHA-256 |
 | `last_name` | `VARCHAR(100)` | NOT NULL | фамилия |
 | `first_name` | `VARCHAR(100)` | NOT NULL | имя |
 | `middle_name` | `VARCHAR(100)` | NULL | отчество (опционально) |

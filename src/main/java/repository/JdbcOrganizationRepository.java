@@ -9,15 +9,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class JdbcOrganizationRepository implements OrganizationRepository {
 
     @Override
-    public Organization create(Organization organization) {
+    public Organization create(Connection connection, Organization organization) {
         String sql = "INSERT INTO organizations (name, join_code) VALUES (?, ?) RETURNING id, created_at";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, organization.getName());
             statement.setString(2, organization.getJoinCode());
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -119,14 +121,13 @@ public class JdbcOrganizationRepository implements OrganizationRepository {
         List<Organization> organizations = new ArrayList<>();
 
         try (Connection connection = DatabaseConfig.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, userId);
-            ResultSet rs = statement.executeQuery();
-
-            while (rs.next()) {
-                organizations.add(mapRow(rs));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    organizations.add(mapRow(resultSet));
+                }
             }
-
             return organizations;
         } catch (SQLException e) {
             throw new RepositoryException("Не удалось загрузить список организаций", e);

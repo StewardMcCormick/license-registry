@@ -16,11 +16,11 @@ import repository.OrganizationMemberRepository;
 import repository.OrganizationRepository;
 import repository.TagRepository;
 import repository.UserRepository;
+import service.AdminService;
 import service.AuthService;
 import service.LicenseService;
 import service.LicenseTypeService;
 import service.OrganizationService;
-import service.StatsService;
 import service.TagService;
 
 public class ServiceRegistry {
@@ -32,7 +32,7 @@ public class ServiceRegistry {
     private final LicenseTypeService licenseTypeService;
     private final TagService tagService;
     private final LicenseService licenseService;
-    private final StatsService statsService;
+    private final AdminService adminService;
 
     public ServiceRegistry() {
         UserRepository userRepository = new JdbcUserRepository();
@@ -50,7 +50,7 @@ public class ServiceRegistry {
         this.licenseTypeService = new LicenseTypeService(licenseTypeRepository);
         this.licenseService = new LicenseService(licenseRepository, licenseTypeRepository,
                 licenseTypeLinkRepository, tagRepository, licenseTagRepository, tagService);
-        this.statsService = new StatsService(userRepository, organizationRepository, memberRepository,
+        this.adminService = new AdminService(userRepository, organizationRepository, memberRepository,
                 licenseRepository);
     }
 
@@ -74,7 +74,7 @@ public class ServiceRegistry {
         return licenseService;
     }
 
-    public StatsService getStatsService() {
-        return statsService;
+    public AdminService getAdminService() {
+        return adminService;
     }
 }

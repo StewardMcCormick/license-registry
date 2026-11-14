@@ -6,13 +6,15 @@ import exception.ValidationException;
 import model.LicenseType;
 import repository.LicenseTypeRepository;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
 public class LicenseTypeService {
 
     private static final String FOREIGN_KEY_VIOLATION_SQL_STATE = "23503";
+    private static final String UNIQUE_VIOLATION_SQL_STATE = "23505";
+    private static final int MAX_CODE_LENGTH = 50;
+    private static final int MAX_NAME_LENGTH = 255;
 
     private final LicenseTypeRepository licenseTypeRepository;
 
@@ -26,7 +28,14 @@ public class LicenseTypeService {
         if (licenseTypeRepository.findByCode(normalizedCode).isPresent()) {
             throw new ValidationException("Тип лицензии с таким кодом уже существует");
         }
-        return licenseTypeRepository.create(new LicenseType(normalizedCode, normalizedName));
+        try {
+            return licenseTypeRepository.create(new LicenseType(normalizedCode, normalizedName));
+        } catch (RepositoryException e) {
+            if (e.hasSqlState(UNIQUE_VIOLATION_SQL_STATE)) {
+                throw new ValidationException("Тип лицензии с таким кодом уже существует");
+            }
+            throw e;
+        }
     }
 
     public LicenseType getById(UUID id) {
@@ -57,8 +66,7 @@ public class LicenseTypeService {
         try {
             licenseTypeRepository.delete(id);
         } catch (RepositoryException e) {
-            if (e.getCause() instanceof SQLException sqlException
-                    && FOREIGN_KEY_VIOLATION_SQL_STATE.equals(sqlException.getSQLState())) {
+            if (e.hasSqlState(FOREIGN_KEY_VIOLATION_SQL_STATE)) {
                 throw new ValidationException("Тип лицензии используется и не может быть удалён");
             }
             throw e;
@@ -69,13 +77,21 @@ public class LicenseTypeService {
         if (code == null || code.isBlank()) {
             throw new ValidationException("Код типа лицензии обязателен");
         }
-        return code.trim().toUpperCase();
+        String normalized = code.trim().toUpperCase();
+        if (normalized.length() > MAX_CODE_LENGTH) {
+            throw new ValidationException("Код типа лицензии не должен превышать " + MAX_CODE_LENGTH + " символов");
+        }
+        return normalized;
     }
 
     private String normalizeName(String name) {
         if (name == null || name.isBlank()) {
             throw new ValidationException("Название типа лицензии обязательно");
         }
-        return name.trim();
+        String normalized = name.trim();
+        if (normalized.length() > MAX_NAME_LENGTH) {
+            throw new ValidationException("Название типа лицензии не должно превышать " + MAX_NAME_LENGTH + " символов");
+        }
+        return normalized;
     }
 }

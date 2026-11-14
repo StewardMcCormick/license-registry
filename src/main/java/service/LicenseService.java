@@ -1,6 +1,7 @@
 package service;
 
 import config.AppConfig;
+import config.DatabaseConfig;
 import exception.NotFoundException;
 import exception.ValidationException;
 import model.License;
@@ -13,6 +14,7 @@ import repository.LicenseTypeLinkRepository;
 import repository.LicenseTypeRepository;
 import repository.TagRepository;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -21,6 +23,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public class LicenseService {
+
+    private static final int MAX_TITLE_LENGTH = 255;
 
     private final LicenseRepository licenseRepository;
     private final LicenseTypeRepository licenseTypeRepository;
@@ -46,39 +50,43 @@ public class LicenseService {
         validateDates(issuedAt, expiresAt);
 
         LicenseStatus status = computeStatus(expiresAt);
-        License license = new License(orgId, title.trim(), issuedAt, expiresAt, status, normalizeNotes(notes));
-        license = licenseRepository.create(license);
+        return DatabaseConfig.inTransaction(connection -> {
+            License license = new License(orgId, title.trim(), issuedAt, expiresAt, status, normalizeNotes(notes));
+            license = licenseRepository.create(connection, license);
 
-        linkTypes(license.getId(), typeIds);
-        linkTags(license.getId(), orgId, tagNames);
+            linkTypes(connection, license.getId(), typeIds);
+            linkTags(connection, license.getId(), orgId, tagNames);
 
-        return license;
+            return license;
+        });
     }
 
     public License update(UUID licenseId, String title, LocalDate issuedAt, LocalDate expiresAt, String notes,
                            List<UUID> typeIds, List<String> tagNames) {
-        License license = getById(licenseId);
-
         validateTitle(title);
         validateDates(issuedAt, expiresAt);
 
-        license.setTitle(title.trim());
-        license.setIssuedAt(issuedAt);
-        license.setExpiresAt(expiresAt);
-        license.setNotes(normalizeNotes(notes));
-        if (license.getStatus() != LicenseStatus.CANCELLED) {
-            license.setStatus(computeStatus(expiresAt));
-        }
+        return DatabaseConfig.inTransaction(connection -> {
+            License license = getById(connection, licenseId);
 
-        licenseRepository.update(license);
+            license.setTitle(title.trim());
+            license.setIssuedAt(issuedAt);
+            license.setExpiresAt(expiresAt);
+            license.setNotes(normalizeNotes(notes));
+            if (license.getStatus() != LicenseStatus.CANCELLED) {
+                license.setStatus(computeStatus(expiresAt));
+            }
 
-        licenseTypeLinkRepository.removeAllByLicenseId(licenseId);
-        linkTypes(licenseId, typeIds);
+            licenseRepository.update(connection, license);
 
-        licenseTagRepository.removeAllByLicenseId(licenseId);
-        linkTags(licenseId, license.getOrgId(), tagNames);
+            licenseTypeLinkRepository.removeAllByLicenseId(connection, licenseId);
+            linkTypes(connection, licenseId, typeIds);
 
-        return license;
+            licenseTagRepository.removeAllByLicenseId(connection, licenseId);
+            linkTags(connection, licenseId, license.getOrgId(), tagNames);
+
+            return license;
+        });
     }
 
     public void cancel(UUID licenseId) {
@@ -104,12 +112,17 @@ public class LicenseService {
                 .orElseThrow(() -> new NotFoundException("Лицензия не найдена"));
     }
 
+    private License getById(Connection connection, UUID licenseId) {
+        return licenseRepository.findById(connection, licenseId)
+                .orElseThrow(() -> new NotFoundException("Лицензия не найдена"));
+    }
+
     public List<License> getByOrgId(UUID orgId) {
         return licenseRepository.findByOrgId(orgId);
     }
 
-    public List<License> search(UUID orgId, LicenseStatus status, UUID typeId, UUID tagId, String titleQuery) {
-        return licenseRepository.search(orgId, status, typeId, tagId, titleQuery);
+    public List<License> search(UUID orgId, LicenseStatus status, UUID typeId, List<UUID> tagIds, String titleQuery) {
+        return licenseRepository.search(orgId, status, typeId, tagIds, titleQuery);
     }
 
     public List<LicenseType> getTypes(UUID licenseId) {
@@ -140,20 +153,20 @@ public class LicenseService {
         return updatedCount;
     }
 
-    private void linkTypes(UUID licenseId, List<UUID> typeIds) {
+    private void linkTypes(Connection connection, UUID licenseId, List<UUID> typeIds) {
         if (typeIds == null) {
             return;
         }
         Set<UUID> distinctTypeIds = new LinkedHashSet<>(typeIds);
         for (UUID typeId : distinctTypeIds) {
-            if (licenseTypeRepository.findById(typeId).isEmpty()) {
+            if (licenseTypeRepository.findById(connection, typeId).isEmpty()) {
                 throw new ValidationException("Тип лицензии не найден: " + typeId);
             }
-            licenseTypeLinkRepository.add(licenseId, typeId);
+            licenseTypeLinkRepository.add(connection, licenseId, typeId);
         }
     }
 
-    private void linkTags(UUID licenseId, UUID orgId, List<String> tagNames) {
+    private void linkTags(Connection connection, UUID licenseId, UUID orgId, List<String> tagNames) {
         if (tagNames == null) {
             return;
         }
@@ -164,8 +177,8 @@ public class LicenseService {
             }
         }
         for (String name : distinctNames) {
-            Tag tag = tagService.getOrCreate(orgId, name);
-            licenseTagRepository.add(licenseId, tag.getId());
+            Tag tag = tagService.getOrCreate(connection, orgId, name);
+            licenseTagRepository.add(connection, licenseId, tag.getId());
         }
     }
 
@@ -184,6 +197,9 @@ public class LicenseService {
     private void validateTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new ValidationException("Название лицензии обязательно");
+        }
+        if (title.trim().length() > MAX_TITLE_LENGTH) {
+            throw new ValidationException("Название лицензии не должно превышать " + MAX_TITLE_LENGTH + " символов");
         }
     }
 

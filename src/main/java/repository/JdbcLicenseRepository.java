@@ -19,11 +19,10 @@ import java.util.UUID;
 public class JdbcLicenseRepository implements LicenseRepository {
 
     @Override
-    public License create(License license) {
+    public License create(Connection connection, License license) {
         String sql = "INSERT INTO licenses (org_id, title, issued_at, expires_at, status, notes) " +
                 "VALUES (?, ?, ?, ?, ?, ?) RETURNING id, created_at, updated_at";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, license.getOrgId());
             statement.setString(2, license.getTitle());
             statement.setObject(3, license.getIssuedAt());
@@ -45,9 +44,17 @@ public class JdbcLicenseRepository implements LicenseRepository {
 
     @Override
     public Optional<License> findById(UUID id) {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            return findById(connection, id);
+        } catch (SQLException e) {
+            throw new RepositoryException("Не удалось найти лицензию по id", e);
+        }
+    }
+
+    @Override
+    public Optional<License> findById(Connection connection, UUID id) {
         String sql = "SELECT * FROM licenses WHERE id = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -111,7 +118,7 @@ public class JdbcLicenseRepository implements LicenseRepository {
     }
 
     @Override
-    public List<License> search(UUID orgId, LicenseStatus status, UUID typeId, UUID tagId, String titleQuery) {
+    public List<License> search(UUID orgId, LicenseStatus status, UUID typeId, List<UUID> tagIds, String titleQuery) {
         StringBuilder sql = new StringBuilder("SELECT DISTINCT l.* FROM licenses l");
         List<Object> params = new ArrayList<>();
 
@@ -119,9 +126,15 @@ public class JdbcLicenseRepository implements LicenseRepository {
             sql.append(" JOIN license_type_link ltl ON ltl.license_id = l.id AND ltl.type_id = ?");
             params.add(typeId);
         }
-        if (tagId != null) {
-            sql.append(" JOIN license_tag lt ON lt.license_id = l.id AND lt.tag_id = ?");
-            params.add(tagId);
+        if (tagIds != null) {
+            int index = 0;
+            for (UUID tagId : tagIds) {
+                String alias = "lt" + index++;
+                sql.append(" JOIN license_tag ").append(alias)
+                        .append(" ON ").append(alias).append(".license_id = l.id AND ")
+                        .append(alias).append(".tag_id = ?");
+                params.add(tagId);
+            }
         }
 
         sql.append(" WHERE l.org_id = ?");
@@ -156,11 +169,10 @@ public class JdbcLicenseRepository implements LicenseRepository {
     }
 
     @Override
-    public void update(License license) {
+    public void update(Connection connection, License license) {
         String sql = "UPDATE licenses SET title = ?, issued_at = ?, expires_at = ?, status = ?, " +
                 "notes = ?, updated_at = now() WHERE id = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, license.getTitle());
             statement.setObject(2, license.getIssuedAt());
             statement.setObject(3, license.getExpiresAt());

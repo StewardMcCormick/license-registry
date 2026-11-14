@@ -10,9 +10,9 @@
 <h1>Главная</h1>
 
 <h2>Пользователь</h2>
-<p><strong>ФИО:</strong> ${sessionScope.currentUser.fullName}</p>
-<p><strong>Email:</strong> ${sessionScope.currentUser.email}</p>
-<p><strong>Роль:</strong> ${sessionScope.currentUser.globalRole}</p>
+<p><strong>ФИО:</strong> <c:out value="${sessionScope.currentUser.fullName}"/></p>
+<p><strong>Email:</strong> <c:out value="${sessionScope.currentUser.email}"/></p>
+<p><strong>Роль:</strong> <c:out value="${sessionScope.currentUser.globalRole}"/></p>
 
 <form method="post" action="${pageContext.request.contextPath}/logout" style="display:inline">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">

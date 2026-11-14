@@ -5,17 +5,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.MemberRole;
-import model.OrganizationMember;
 import model.User;
 import util.CurrentUser;
 import util.SessionUtil;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import static web.util.View.redirect;
 import static web.util.View.render;
@@ -37,17 +31,7 @@ public class LoginServlet extends BaseServlet {
 
         try {
             User user = services().getAuthService().authenticate(email, password);
-            CurrentUser currentUser = new CurrentUser(user.getId(), user.getEmail(),
-                    user.getLastName() + " " + user.getFirstName(), user.getGlobalRole());
-
-            List<OrganizationMember> memberships = services().getOrganizationService()
-                    .getMembershipsByUserId(user.getId());
-
-            for (OrganizationMember m : memberships) {
-                currentUser.addMemberRoleMap(m.getOrgId(), m.getMemberRole());
-            }
-
-            SessionUtil.login(request, currentUser);
+            SessionUtil.login(request, CurrentUser.of(user));
             redirect(request, response, "/");
         } catch (ValidationException e) {
             request.setAttribute("error", e.getMessage());

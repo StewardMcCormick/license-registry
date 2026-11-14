@@ -1,6 +1,7 @@
 package service;
 
 import exception.NotFoundException;
+import exception.ValidationException;
 import model.GlobalRole;
 import model.License;
 import model.LicenseStatus;
@@ -17,14 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class StatsService {
+
+/**
+ * Сервис администрирования: агрегирует данные для панели суперадмина
+ * (общая статистика и сводки по организациям) и управляет глобальной ролью
+ * пользователей ({@code grantSuperadmin}/{@code revokeSuperadmin}).
+ */
+public class AdminService {
 
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     private final OrganizationMemberRepository memberRepository;
     private final LicenseRepository licenseRepository;
 
-    public StatsService(UserRepository userRepository, OrganizationRepository organizationRepository,
+    public AdminService(UserRepository userRepository, OrganizationRepository organizationRepository,
                          OrganizationMemberRepository memberRepository, LicenseRepository licenseRepository) {
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
@@ -65,14 +72,29 @@ public class StatsService {
     }
 
     public void revokeSuperadmin(UUID userId) {
-        setGlobalRole(userId, GlobalRole.USER);
+        User user = requireUser(userId);
+        if (user.getGlobalRole() == GlobalRole.SUPERADMIN && countSuperadmins() <= 1) {
+            throw new ValidationException("Нельзя снять роль с последнего суперадмина");
+        }
+        user.setGlobalRole(GlobalRole.USER);
+        userRepository.update(user);
     }
 
     private void setGlobalRole(UUID userId, GlobalRole globalRole) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        User user = requireUser(userId);
         user.setGlobalRole(globalRole);
         userRepository.update(user);
+    }
+
+    private User requireUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    }
+
+    private long countSuperadmins() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getGlobalRole() == GlobalRole.SUPERADMIN)
+                .count();
     }
 
     private OrganizationSummary toSummary(Organization organization) {

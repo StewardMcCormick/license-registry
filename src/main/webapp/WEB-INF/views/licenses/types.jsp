@@ -8,15 +8,15 @@
 <h1>Типы лицензий</h1>
 
 <c:if test="${not empty error}">
-    <p style="color:red">${error}</p>
+    <p style="color:red"><c:out value="${error}"/></p>
 </c:if>
 
 <table border="1">
     <tr><th>Код</th><th>Название</th></tr>
     <c:forEach var="type" items="${types}">
         <tr>
-            <td>${type.code}</td>
-            <td>${type.name}</td>
+            <td><c:out value="${type.code}"/></td>
+            <td><c:out value="${type.name}"/></td>
         </tr>
     </c:forEach>
 </table>

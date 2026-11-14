@@ -8,9 +8,13 @@ import jakarta.servlet.annotation.WebListener;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebListener
 public class AppContextListener implements ServletContextListener {
+
+    private static final Logger LOGGER = Logger.getLogger(AppContextListener.class.getName());
 
     private ScheduledExecutorService scheduler;
 
@@ -24,7 +28,7 @@ public class AppContextListener implements ServletContextListener {
             try {
                 services.getLicenseService().recalculateStatuses();
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Не удалось пересчитать статусы лицензий", e);
             }
         }, 0, 1, TimeUnit.DAYS);
     }

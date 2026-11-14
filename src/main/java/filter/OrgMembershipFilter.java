@@ -30,6 +30,11 @@ public class OrgMembershipFilter implements Filter {
             return;
         }
 
+        if (currentUser.isSuperadmin()) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         UUID orgId = PathUtil.segmentAsUuid(PathUtil.segments(request.getPathInfo()), 0);
         if (!isOrgMember(request, currentUser.getUserId(), orgId)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Доступно только участнику организации");
@@ -40,13 +45,14 @@ public class OrgMembershipFilter implements Filter {
     }
 
     private boolean isOrgMember(HttpServletRequest request, UUID userId, UUID orgId) {
+        if (orgId == null) {
+            return true;
+        }
+
         ServiceRegistry serviceRegistry = (ServiceRegistry) request.getServletContext()
                 .getAttribute(ServiceRegistry.CONTEXT_ATTRIBUTE);
         OrganizationService organizationService = serviceRegistry.getOrganizationService();
 
-        if (orgId != null) {
-            return organizationService.findMemberRole(orgId, userId).isPresent();
-        }
-        return !organizationService.getMembershipsByUserId(userId).isEmpty();
+        return organizationService.findMemberRole(orgId, userId).isPresent();
     }
 }

@@ -22,8 +22,8 @@
             </tr>
             <c:forEach var="org" items="${organizations}">
                 <tr>
-                    <td>${org.name}</td>
-                    <td>${rolesByOrgId[org.id]}</td>
+                    <td><c:out value="${org.name}"/></td>
+                    <td><c:out value="${rolesByOrgId[org.id]}"/></td>
                     <td><a href="${pageContext.request.contextPath}/org/${org.id}/licenses">Открыть</a></td>
                 </tr>
             </c:forEach>

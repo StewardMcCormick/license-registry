@@ -3,6 +3,7 @@ package repository;
 import model.MemberRole;
 import model.OrganizationMember;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,6 +11,8 @@ import java.util.UUID;
 public interface OrganizationMemberRepository {
 
     OrganizationMember create(OrganizationMember member);
+
+    OrganizationMember create(Connection connection, OrganizationMember member);
 
     Optional<OrganizationMember> findByOrgAndUser(UUID orgId, UUID userId);
 

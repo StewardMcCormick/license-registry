@@ -21,9 +21,9 @@
 | `ErrorLoggingFilter` | `/*` | логирует необработанные исключения |
 | `EncodingFilter` | `/*` | UTF-8 для запроса/ответа |
 | `CsrfFilter` | `/*` | кладёт токен в сессию; проверяет `csrfToken` на POST |
-| `AuthFilter` | `/`, `/create-organization`, `/join-organization`, `/organizations`, `/onboarding`, `/org/*`, `/admin`, `/admin/*` | требует аутентификации, иначе → `/login` |
-| `OrgMembershipFilter` | `/org/*` | требует, чтобы пользователь был участником организации из пути (`/org/{orgId}/...`); иначе `403` |
-| `OrgRoleFilter` | `/org/*` | для страницы настроек `/org/{id}` и действий `reissue-code`/`promote`/`lower` требует роль `ADMIN` **именно в этой организации** (роль в другой организации не подходит); иначе `403`. Раздел `licenses` пропускается (доступен и `MANAGER`) |
+| `AuthFilter` | `/`, `/join-organization`, `/onboarding`, `/org`, `/org/*`, `/admin`, `/admin/*` | требует аутентификации, иначе → `/login` |
+| `OrgMembershipFilter` | `/org/*` | требует, чтобы пользователь был участником организации из пути (`/org/{orgId}/...`); иначе `403`. Для корня `/org` (создание организации) и для суперадмина проверка пропускается |
+| `OrgRoleFilter` | `/org/*` | для страницы настроек `/org/{id}` и действий `reissue-code`/`promote`/`lower` требует роль `ADMIN` **именно в этой организации** (роль в другой организации не подходит); иначе `403`. Суперадмин пропускается, раздел `licenses` доступен и `MANAGER` |
 | `SuperadminFilter` | `/admin`, `/admin/*` | только `SUPERADMIN`, иначе `403` |
 
 `error-page`: `Exception` и коды `400/403/404/500` → `/error`.
@@ -45,19 +45,19 @@
 | Метод | Путь | Результат |
 |---|---|---|
 | GET | `/` | без сессии → `302 /login`; иначе `home/index.jsp` (данные пользователя) |
-| GET | `/organizations` | без сессии → `302 /login`; иначе `home/organizations.jsp` (`organizations`, `rolesByOrgId`) |
 | GET | `/onboarding` | без сессии → `302 /login`; иначе `home/onboarding.jsp` |
 
 ## Организации
 
 | Метод | Путь | Параметры | Доступ | Результат |
 |---|---|---|---|---|
-| POST | `/create-organization` | `name` | авторизован | ок → `302 /org/{id}/licenses`; ошибка → `home/onboarding.jsp` + `error` |
+| GET | `/org` | — | авторизован | список организаций пользователя: `home/org-list.jsp` (`organizations`, `rolesByOrgId`) |
+| POST | `/org` | `name` | авторизован | создать организацию: ок → `302 /org/{id}/licenses`; ошибка → `home/onboarding.jsp` + `error` |
 | POST | `/join-organization` | `joinCode` | авторизован | ок → `302 /org/{id}/licenses`; ошибка → `home/onboarding.jsp` + `error` |
-| GET | `/org/{orgId}` | — | `ADMIN` | `org/settings.jsp` (`organization`, `members`); нет → `404` |
-| POST | `/org/{orgId}/reissue-code` | — | `ADMIN` | перевыпуск join-кода → `302 /org/{orgId}` |
-| POST | `/org/{orgId}/promote` | `userId` | `ADMIN` | повысить до `ADMIN` → `302 /org/{orgId}` |
-| POST | `/org/{orgId}/lower` | `userId` | `ADMIN` | понизить до `MANAGER` → `302 /org/{orgId}` |
+| GET | `/org/{orgId}` | — | `ADMIN` или `SUPERADMIN` | `org/settings.jsp` (`organization`, `members`); нет → `404` |
+| POST | `/org/{orgId}/reissue-code` | — | `ADMIN` или `SUPERADMIN` | перевыпуск join-кода → `302 /org/{orgId}` |
+| POST | `/org/{orgId}/promote` | `userId` | `ADMIN` или `SUPERADMIN` | повысить до `ADMIN` → `302 /org/{orgId}` |
+| POST | `/org/{orgId}/lower` | `userId` | `ADMIN` или `SUPERADMIN` | понизить до `MANAGER` → `302 /org/{orgId}` |
 
 Создатель организации становится `ADMIN`, присоединившийся по коду — `MANAGER`.
 `joinCode` нечувствителен к регистру; повторное вступление → `error`.
@@ -68,7 +68,7 @@
 
 | Метод | Путь | Параметры | Результат |
 |---|---|---|---|
-| GET | `/org/{orgId}/licenses` | `status`, `typeId`, `tagId`, `q` (все опциональны) | `licenses/list.jsp` (`licenses`, `types`, `tags`) |
+| GET | `/org/{orgId}/licenses` | `status`, `typeId`, `tagIds` (можно повторять), `q` (все опциональны) | `licenses/list.jsp` (`licenses`, `types`, `tags`) |
 | GET | `/org/{orgId}/licenses/new` | — | `licenses/form.jsp` (`types`) |
 | POST | `/org/{orgId}/licenses/new` | см. поля ниже | ок → `302 /org/{orgId}/licenses/{id}`; ошибка → `form.jsp` + `error` |
 | GET | `/org/{orgId}/licenses/{id}` | — | `licenses/detail.jsp` (`license`, `types`, `tags`) |
@@ -77,6 +77,8 @@
 | POST | `/org/{orgId}/licenses/{id}/cancel` | — | статус → `CANCELLED` → `302 .../{id}` |
 | POST | `/org/{orgId}/licenses/{id}/restore` | — | снять `CANCELLED`, пересчитать статус → `302 .../{id}` |
 | POST | `/org/{orgId}/licenses/{id}/delete` | — | удалить → `302 /org/{orgId}/licenses` |
+
+Фильтр по тегам множественный: `tagIds` можно передать несколько раз, и лицензия должна содержать **все** выбранные теги (логика **AND**). Невалидные `status`/`typeId`/`tagIds` игнорируются.
 
 **Поля лицензии (create/edit):**
 
@@ -109,6 +111,7 @@
 | GET | `/admin` | — | `SUPERADMIN` | `admin/dashboard.jsp` (`stats`, `organizations`) |
 | POST | `/admin/grant-superadmin` | `userId` | `SUPERADMIN` | выдать `SUPERADMIN` → `302 /admin` |
 | POST | `/admin/revoke-superadmin` | `userId` | `SUPERADMIN` | вернуть `USER` → `302 /admin` |
+| POST | `/admin/reissue-code` | `orgId` | `SUPERADMIN` | перевыпустить join-код организации → `302 /admin` |
 
 ## Ошибки
 

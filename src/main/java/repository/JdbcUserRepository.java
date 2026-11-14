@@ -2,7 +2,6 @@ package repository;
 
 import config.DatabaseConfig;
 import exception.RepositoryException;
-import model.GlobalRole;
 import model.User;
 import repository.util.RowMapper;
 
@@ -50,7 +49,7 @@ public class JdbcUserRepository implements UserRepository {
             statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return Optional.of(RowMapper.mapUser(resultSet, ""));
+                    return Optional.of(RowMapper.mapUser(resultSet));
                 }
                 return Optional.empty();
             }
@@ -67,7 +66,7 @@ public class JdbcUserRepository implements UserRepository {
             statement.setString(1, email);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return Optional.of(RowMapper.mapUser(resultSet, ""));
+                    return Optional.of(RowMapper.mapUser(resultSet));
                 }
                 return Optional.empty();
             }
@@ -87,7 +86,7 @@ public class JdbcUserRepository implements UserRepository {
             statement.setObject(1, orgId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    users.add(RowMapper.mapUser(resultSet, ""));
+                    users.add(RowMapper.mapUser(resultSet));
                 }
             }
             return users;
@@ -104,7 +103,7 @@ public class JdbcUserRepository implements UserRepository {
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                users.add(RowMapper.mapUser(resultSet, ""));
+                users.add(RowMapper.mapUser(resultSet));
             }
             return users;
         } catch (SQLException e) {

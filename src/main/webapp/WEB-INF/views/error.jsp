@@ -5,8 +5,8 @@
 <body>
 <%@ include file="/WEB-INF/views/layout/global-navbar.jsp" %>
 <h1>Ошибка</h1>
-<p>Статус: ${status}</p>
-<p>${message}</p>
+<p>Статус: <c:out value="${status}"/></p>
+<p><c:out value="${message}"/></p>
 <a href="${pageContext.request.contextPath}/">На главную</a>
 </body>
 </html>

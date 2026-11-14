@@ -37,16 +37,25 @@ public class ErrorServlet extends BaseServlet {
         String containerMessage = (String) request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
 
         int status = statusCode != null ? statusCode : HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-        String message = exception != null
-                ? exception.getClass().getSimpleName() + ": " + exception.getMessage()
-                : containerMessage;
+        String message = resolveUserMessage(status, containerMessage);
 
         LOGGER.log(Level.SEVERE, "Ошибка " + status + " на " + requestUri
-                + (message != null && !message.isBlank() ? ": " + message : ""), exception);
+                + (containerMessage != null && !containerMessage.isBlank() ? ": " + containerMessage : ""),
+                exception);
 
         response.setStatus(status);
         request.setAttribute("status", status);
         request.setAttribute("message", message);
         render(request, response, "error.jsp");
+    }
+
+    private String resolveUserMessage(int status, String containerMessage) {
+        if (status >= 500) {
+            return "Внутренняя ошибка сервера";
+        }
+        if (containerMessage != null && !containerMessage.isBlank()) {
+            return containerMessage;
+        }
+        return "Запрос не может быть обработан";
     }
 }

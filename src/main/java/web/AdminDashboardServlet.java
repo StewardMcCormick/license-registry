@@ -15,8 +15,8 @@ public class AdminDashboardServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("stats", services().getStatsService().getGlobalStats());
-        request.setAttribute("organizations", services().getStatsService().getOrganizationSummaries());
+        request.setAttribute("stats", services().getAdminService().getGlobalStats());
+        request.setAttribute("organizations", services().getAdminService().getOrganizationSummaries());
         render(request, response, "admin/dashboard.jsp");
     }
 }

@@ -35,9 +35,17 @@ public class JdbcLicenseTypeRepository implements LicenseTypeRepository {
 
     @Override
     public Optional<LicenseType> findById(UUID id) {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            return findById(connection, id);
+        } catch (SQLException e) {
+            throw new RepositoryException("Не удалось найти тип лицензии по id", e);
+        }
+    }
+
+    @Override
+    public Optional<LicenseType> findById(Connection connection, UUID id) {
         String sql = "SELECT * FROM license_types WHERE id = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {

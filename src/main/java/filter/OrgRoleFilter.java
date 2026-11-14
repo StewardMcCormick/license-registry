@@ -15,9 +15,12 @@ import util.PathUtil;
 import util.SessionUtil;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 public class OrgRoleFilter implements Filter {
+
+    private static final Set<String> ADMIN_ONLY_SECTIONS = Set.of("reissue-code", "promote", "lower");
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -31,6 +34,11 @@ public class OrgRoleFilter implements Filter {
             return;
         }
 
+        if (currentUser.isSuperadmin()) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String[] segments = PathUtil.segments(request.getPathInfo());
         UUID orgId = PathUtil.segmentAsUuid(segments, 0);
         if (orgId == null) {
@@ -39,17 +47,16 @@ public class OrgRoleFilter implements Filter {
         }
 
         String section = PathUtil.segment(segments, 1);
-        boolean adminOnly = section == null || section.isBlank()
-                || "reissue-code".equals(section)
-                || "promote".equals(section)
-                || "lower".equals(section);
-
-        if (adminOnly && !isAdminOf(request, currentUser.getUserId(), orgId)) {
+        if (isAdminOnlySection(section) && !isAdminOf(request, currentUser.getUserId(), orgId)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Доступно только администратору организации");
             return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    private boolean isAdminOnlySection(String section) {
+        return section == null || section.isBlank() || ADMIN_ONLY_SECTIONS.contains(section);
     }
 
     private boolean isAdminOf(HttpServletRequest request, UUID userId, UUID orgId) {

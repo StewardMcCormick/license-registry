@@ -16,10 +16,10 @@ import java.util.UUID;
 public class JdbcTagRepository implements TagRepository {
 
     @Override
-    public Tag create(Tag tag) {
-        String sql = "INSERT INTO tags (org_id, name) VALUES (?, ?) RETURNING id";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+    public Tag create(Connection connection, Tag tag) {
+        String sql = "INSERT INTO tags (org_id, name) VALUES (?, ?) " +
+                "ON CONFLICT (org_id, name) DO UPDATE SET name = EXCLUDED.name RETURNING id";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, tag.getOrgId());
             statement.setString(2, tag.getName());
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -52,9 +52,17 @@ public class JdbcTagRepository implements TagRepository {
 
     @Override
     public Optional<Tag> findByOrgIdAndName(UUID orgId, String name) {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            return findByOrgIdAndName(connection, orgId, name);
+        } catch (SQLException e) {
+            throw new RepositoryException("Не удалось найти тег по имени", e);
+        }
+    }
+
+    @Override
+    public Optional<Tag> findByOrgIdAndName(Connection connection, UUID orgId, String name) {
         String sql = "SELECT * FROM tags WHERE org_id = ? AND name = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, orgId);
             statement.setString(2, name);
             try (ResultSet resultSet = statement.executeQuery()) {

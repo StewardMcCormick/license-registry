@@ -3,15 +3,18 @@ package repository;
 import model.License;
 import model.LicenseStatus;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface LicenseRepository {
 
-    License create(License license);
+    License create(Connection connection, License license);
 
     Optional<License> findById(UUID id);
+
+    Optional<License> findById(Connection connection, UUID id);
 
     List<License> findByOrgId(UUID orgId);
 
@@ -19,9 +22,9 @@ public interface LicenseRepository {
 
     List<License> findAllNonCancelled();
 
-    List<License> search(UUID orgId, LicenseStatus status, UUID typeId, UUID tagId, String titleQuery);
+    List<License> search(UUID orgId, LicenseStatus status, UUID typeId, List<UUID> tagIds, String titleQuery);
 
-    void update(License license);
+    void update(Connection connection, License license);
 
     void updateStatus(UUID id, LicenseStatus status);
 

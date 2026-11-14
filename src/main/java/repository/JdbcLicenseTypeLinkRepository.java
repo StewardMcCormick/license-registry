@@ -14,10 +14,9 @@ import java.util.UUID;
 public class JdbcLicenseTypeLinkRepository implements LicenseTypeLinkRepository {
 
     @Override
-    public void add(UUID licenseId, UUID typeId) {
+    public void add(Connection connection, UUID licenseId, UUID typeId) {
         String sql = "INSERT INTO license_type_link (license_id, type_id) VALUES (?, ?)";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, licenseId);
             statement.setObject(2, typeId);
             statement.executeUpdate();
@@ -40,10 +39,9 @@ public class JdbcLicenseTypeLinkRepository implements LicenseTypeLinkRepository 
     }
 
     @Override
-    public void removeAllByLicenseId(UUID licenseId) {
+    public void removeAllByLicenseId(Connection connection, UUID licenseId) {
         String sql = "DELETE FROM license_type_link WHERE license_id = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setObject(1, licenseId);
             statement.executeUpdate();
         } catch (SQLException e) {

@@ -10,11 +10,11 @@
 <h1>Онбординг</h1>
 
 <c:if test="${not empty error}">
-    <p style="color:red">${error}</p>
+    <p style="color:red"><c:out value="${error}"/></p>
 </c:if>
 
 <h3>Создать организацию</h3>
-<form method="post" action="${pageContext.request.contextPath}/create-organization">
+<form method="post" action="${pageContext.request.contextPath}/org">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
     <p><input type="text" name="name" placeholder="Название организации" required></p>
     <button type="submit">Создать</button>

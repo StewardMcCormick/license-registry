@@ -5,7 +5,7 @@
 <body>
 <h1>Регистрация</h1>
 <c:if test="${not empty error}">
-    <p style="color:red">${error}</p>
+    <p style="color:red"><c:out value="${error}"/></p>
 </c:if>
 <form method="post" action="${pageContext.request.contextPath}/register">
     <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">

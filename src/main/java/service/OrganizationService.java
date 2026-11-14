@@ -1,6 +1,8 @@
 package service;
 
+import config.DatabaseConfig;
 import exception.NotFoundException;
+import exception.RepositoryException;
 import exception.ValidationException;
 import model.MemberRole;
 import model.Organization;
@@ -16,6 +18,8 @@ import java.util.UUID;
 public class OrganizationService {
 
     private static final int MAX_JOIN_CODE_ATTEMPTS = 10;
+    private static final int MAX_NAME_LENGTH = 255;
+    private static final String UNIQUE_VIOLATION_SQL_STATE = "23505";
 
     private final OrganizationRepository organizationRepository;
     private final OrganizationMemberRepository memberRepository;
@@ -30,10 +34,17 @@ public class OrganizationService {
         if (name == null || name.isBlank()) {
             throw new ValidationException("Название организации обязательно");
         }
-        Organization organization = new Organization(name.trim(), generateUniqueJoinCode());
-        organization = organizationRepository.create(organization);
-        memberRepository.create(new OrganizationMember(organization.getId(), creatorUserId, MemberRole.ADMIN));
-        return organization;
+        String normalizedName = name.trim();
+        if (normalizedName.length() > MAX_NAME_LENGTH) {
+            throw new ValidationException("Название организации не должно превышать " + MAX_NAME_LENGTH + " символов");
+        }
+        Organization organization = new Organization(normalizedName, generateUniqueJoinCode());
+        return DatabaseConfig.inTransaction(connection -> {
+            Organization created = organizationRepository.create(connection, organization);
+            memberRepository.create(connection,
+                    new OrganizationMember(created.getId(), creatorUserId, MemberRole.ADMIN));
+            return created;
+        });
     }
 
     public Organization joinOrganization(String joinCode, UUID userId) {
@@ -45,7 +56,14 @@ public class OrganizationService {
         if (memberRepository.findByOrgAndUser(organization.getId(), userId).isPresent()) {
             throw new ValidationException("Пользователь уже состоит в этой организации");
         }
-        memberRepository.create(new OrganizationMember(organization.getId(), userId, MemberRole.MANAGER));
+        try {
+            memberRepository.create(new OrganizationMember(organization.getId(), userId, MemberRole.MANAGER));
+        } catch (RepositoryException e) {
+            if (e.hasSqlState(UNIQUE_VIOLATION_SQL_STATE)) {
+                throw new ValidationException("Пользователь уже состоит в этой организации");
+            }
+            throw e;
+        }
         return organization;
     }
 
@@ -70,6 +88,9 @@ public class OrganizationService {
                 .orElseThrow(() -> new NotFoundException("Пользователь не состоит в организации"));
         if (member.getMemberRole() == MemberRole.MANAGER) {
             return;
+        }
+        if (countAdmins(orgId) <= 1) {
+            throw new ValidationException("В организации должен остаться хотя бы один администратор");
         }
         memberRepository.updateRole(orgId, userId, MemberRole.MANAGER);
     }
@@ -97,6 +118,12 @@ public class OrganizationService {
 
     public Optional<MemberRole> findMemberRole(UUID orgId, UUID userId) {
         return memberRepository.findByOrgAndUser(orgId, userId).map(OrganizationMember::getMemberRole);
+    }
+
+    private long countAdmins(UUID orgId) {
+        return memberRepository.findByOrgId(orgId).stream()
+                .filter(member -> member.getMemberRole() == MemberRole.ADMIN)
+                .count();
     }
 
     private String generateUniqueJoinCode() {

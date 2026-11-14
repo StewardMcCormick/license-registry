@@ -23,7 +23,7 @@ public class RegisterServlet extends BaseServlet {
         render(request, response, "auth/register.jsp");
     }
 
-    @Override // TODO: rewrite to AJAX
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
@@ -34,8 +34,7 @@ public class RegisterServlet extends BaseServlet {
 
         try {
             User user = services().getAuthService().register(email, password, lastName, firstName, middleName);
-            SessionUtil.login(request, new CurrentUser(user.getId(), user.getEmail(),
-                    user.getLastName() + " " + user.getFirstName(), user.getGlobalRole()));
+            SessionUtil.login(request, CurrentUser.of(user));
             redirect(request, response, "/");
         } catch (ValidationException e) {
             request.setAttribute("error", e.getMessage());
