@@ -1,6 +1,5 @@
-package web.license;
+package web.organization.contoller;
 
-import web.common.BaseServlet;
 import config.ServiceRegistry;
 import exception.NotFoundException;
 import exception.ValidationException;
@@ -18,6 +17,7 @@ import util.web.PathUtil;
 import util.auth.SessionUtil;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -83,7 +83,7 @@ public class LicenseController {
             throws ServletException, IOException {
         exposeOrgContext(req, orgId);
         req.setAttribute("types", services.getLicenseTypeService().getAll(orgId));
-        render(req, resp, "licenses/form.jsp");
+        render(req, resp, "licenses/new.jsp");
     }
 
     private void showTypes(HttpServletRequest req, HttpServletResponse resp, UUID orgId)
@@ -118,14 +118,7 @@ public class LicenseController {
                 req.setAttribute("tags", services.getLicenseService().getTags(licenseId));
                 render(req, resp, "licenses/detail.jsp");
             } else if ("edit".equals(action)) {
-                req.setAttribute("types", services.getLicenseTypeService().getAll(orgId));
-                req.setAttribute("selectedTypes", services.getLicenseService().getTypes(licenseId));
-                List<Tag> selectedTags = services.getLicenseService().getTags(licenseId);
-                req.setAttribute("selectedTags", selectedTags);
-                req.setAttribute("tagsValue", selectedTags.stream()
-                        .map(Tag::getName)
-                        .collect(Collectors.joining(", ")));
-                render(req, resp, "licenses/form.jsp");
+                showEditLicensePage(req, resp, license);
             } else {
                 renderError(req, resp, HttpServletResponse.SC_NOT_FOUND, "Страница не найдена");
             }
@@ -134,24 +127,55 @@ public class LicenseController {
         }
     }
 
+    private void showEditLicensePage(HttpServletRequest req, HttpServletResponse resp, License license)
+            throws ServletException, IOException {
+        UUID orgId = license.getOrgId();
+        req.setAttribute("types", services.getLicenseTypeService().getAll(orgId));
+
+        req.setAttribute("selectedTypeIds", services.getLicenseService().getTypes(license.getId()).stream()
+                .map(LicenseType::getId)
+                .toList());
+
+        List<Tag> selectedTags = services.getLicenseService().getTags(license.getId());
+
+        req.setAttribute("tagsValue", selectedTags.stream()
+                .map(Tag::getName)
+                .collect(Collectors.joining(", ")));
+
+        render(req, resp, "licenses/edit.jsp");
+    }
+
     private void createLicense(HttpServletRequest req, HttpServletResponse resp, UUID orgId)
             throws ServletException, IOException {
+        String title = req.getParameter("title");
+        LocalDate issuedAt = ParamUtil.parseDate(req.getParameter("issuedAt"));
+        LocalDate expiresAt = ParamUtil.parseDate(req.getParameter("expiresAt"));
+        String notes = req.getParameter("notes");
+        List<UUID> typeIds = ParamUtil.parseUuidList(req.getParameterValues("typeIds"));
+        List<String> tags = ParamUtil.parseCommaSeparated(req.getParameter("tags"));
+
         try {
             License license = services.getLicenseService().create(
                     orgId,
-                    req.getParameter("title"),
-                    ParamUtil.parseDate(req.getParameter("issuedAt")),
-                    ParamUtil.parseDate(req.getParameter("expiresAt")),
-                    req.getParameter("notes"),
-                    ParamUtil.parseUuidList(req.getParameterValues("typeIds")),
-                    ParamUtil.parseCommaSeparated(req.getParameter("tags"))
+                    title,
+                    issuedAt,
+                    expiresAt,
+                    notes,
+                    typeIds,
+                    tags
             );
             redirect(req, resp, "/org/" + orgId + "/licenses/" + license.getId());
         } catch (ValidationException e) {
             exposeOrgContext(req, orgId);
             req.setAttribute("error", e.getMessage());
             req.setAttribute("types", services.getLicenseTypeService().getAll(orgId));
-            render(req, resp, "licenses/form.jsp");
+            req.setAttribute("formTitle", title);
+            req.setAttribute("formIssuedAt", issuedAt);
+            req.setAttribute("formExpiresAt", expiresAt);
+            req.setAttribute("formNotes", notes);
+            req.setAttribute("formTags", req.getParameter("tags"));
+            req.setAttribute("formTypeIds", typeIds);
+            render(req, resp, "licenses/new.jsp");
         }
     }
 

@@ -13,7 +13,7 @@ import model.organization.OrganizationMember;
 import util.auth.CurrentUser;
 import util.web.ParamUtil;
 import util.web.PathUtil;
-import web.license.LicenseController;
+import web.organization.contoller.LicenseController;
 
 import java.io.IOException;
 import java.util.HashMap;

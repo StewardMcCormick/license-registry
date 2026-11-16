@@ -70,10 +70,10 @@
 | Метод | Путь | Параметры | Результат |
 |---|---|---|---|
 | GET | `/org/{orgId}/licenses` | `status`, `typeId`, `tagIds` (можно повторять), `q` (все опциональны) | `licenses/list.jsp` (`licenses`, `types`, `tags`) |
-| GET | `/org/{orgId}/licenses/new` | — | `licenses/form.jsp` (`types`) |
-| POST | `/org/{orgId}/licenses/new` | см. поля ниже | ок → `302 /org/{orgId}/licenses/{id}`; ошибка → `form.jsp` + `error` |
+| GET | `/org/{orgId}/licenses/new` | — | `licenses/new.jsp` (`types`) |
+| POST | `/org/{orgId}/licenses/new` | см. поля ниже | ок → `302 /org/{orgId}/licenses/{id}`; ошибка → `new.jsp` + `error` |
 | GET | `/org/{orgId}/licenses/{id}` | — | `licenses/detail.jsp` (`license`, `types`, `tags`) |
-| GET | `/org/{orgId}/licenses/{id}/edit` | — | `licenses/form.jsp` (`license`, `types`, `selectedTypes`, `selectedTags`) |
+| GET | `/org/{orgId}/licenses/{id}/edit` | — | `licenses/edit.jsp` (`license`, `types`, `selectedTypeIds`, `tagsValue`) |
 | POST | `/org/{orgId}/licenses/{id}/edit` | см. поля ниже | ок → `302 .../{id}` |
 | POST | `/org/{orgId}/licenses/{id}/cancel` | — | статус → `CANCELLED` → `302 .../{id}` |
 | POST | `/org/{orgId}/licenses/{id}/restore` | — | снять `CANCELLED`, пересчитать статус → `302 .../{id}` |

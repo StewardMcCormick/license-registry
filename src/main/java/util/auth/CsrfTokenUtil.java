@@ -14,13 +14,12 @@ public class CsrfTokenUtil {
     private CsrfTokenUtil() {
     }
 
-    public static String getOrCreateToken(HttpSession session) {
+    public static void getOrCreateToken(HttpSession session) {
         String token = (String) session.getAttribute(SESSION_ATTRIBUTE);
         if (token == null) {
             token = generate();
             session.setAttribute(SESSION_ATTRIBUTE, token);
         }
-        return token;
     }
 
     public static boolean isValid(HttpSession session, String submittedToken) {
