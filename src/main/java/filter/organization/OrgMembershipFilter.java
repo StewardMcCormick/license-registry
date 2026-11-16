@@ -36,7 +36,7 @@ public class OrgMembershipFilter implements Filter {
         }
 
         UUID orgId = PathUtil.segmentAsUuid(PathUtil.segments(request.getPathInfo()), 0);
-        if (!isOrgMember(request, currentUser.getUserId(), orgId)) {
+        if (!isOrgMember(request, currentUser.userId(), orgId)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Доступно только участнику организации");
             return;
         }

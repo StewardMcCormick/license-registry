@@ -26,7 +26,7 @@ public class JoinOrganizationServlet extends BaseServlet {
 
         try {
             Organization organization = services().getOrganizationService()
-                    .joinOrganization(joinCode, currentUser.getUserId());
+                    .joinOrganization(joinCode, currentUser.userId());
             redirect(request, response, "/org/" + organization.getId() + "/licenses");
         } catch (ValidationException | NotFoundException e) {
             request.setAttribute("error", e.getMessage());

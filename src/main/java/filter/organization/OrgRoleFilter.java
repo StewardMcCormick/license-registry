@@ -47,7 +47,7 @@ public class OrgRoleFilter implements Filter {
         }
 
         String section = PathUtil.segment(segments, 1);
-        if (isAdminOnlySection(section) && !isAdminOf(request, currentUser.getUserId(), orgId)) {
+        if (isAdminOnlySection(section) && !isAdminOf(request, currentUser.userId(), orgId)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Доступно только администратору организации");
             return;
         }

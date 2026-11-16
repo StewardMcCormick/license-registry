@@ -261,7 +261,7 @@ public class LicenseController {
         String orgRole = null;
         if (currentUser != null && !currentUser.isSuperadmin()) {
             orgRole = services.getOrganizationService()
-                    .findMemberRole(orgId, currentUser.getUserId())
+                    .findMemberRole(orgId, currentUser.userId())
                     .map(MemberRole::name)
                     .orElse(null);
         }
@@ -275,7 +275,7 @@ public class LicenseController {
         if (user.isSuperadmin()) {
             return true;
         }
-        return services.getOrganizationService().findMemberRole(orgId, user.getUserId()).isPresent();
+        return services.getOrganizationService().findMemberRole(orgId, user.userId()).isPresent();
     }
 
     private boolean isOrgAdmin(CurrentUser user, UUID orgId) {
@@ -285,7 +285,7 @@ public class LicenseController {
         if (user.isSuperadmin()) {
             return true;
         }
-        return services.getOrganizationService().findMemberRole(orgId, user.getUserId())
+        return services.getOrganizationService().findMemberRole(orgId, user.userId())
                 .orElse(null) == MemberRole.ADMIN;
     }
 

@@ -90,9 +90,9 @@ public class OrganizationServlet extends BaseServlet {
         CurrentUser currentUser = currentUser(req);
 
         List<Organization> organizations = services().getOrganizationService()
-                .getByUserId(currentUser.getUserId());
+                .getByUserId(currentUser.userId());
         List<OrganizationMember> memberships = services().getOrganizationService()
-                .getMembershipsByUserId(currentUser.getUserId());
+                .getMembershipsByUserId(currentUser.userId());
 
         Map<UUID, String> rolesByOrgId = new HashMap<>();
         for (OrganizationMember membership : memberships) {
@@ -127,7 +127,7 @@ public class OrganizationServlet extends BaseServlet {
 
         try {
             Organization organization = services().getOrganizationService()
-                    .createOrganization(req.getParameter("name"), currentUser.getUserId());
+                    .createOrganization(req.getParameter("name"), currentUser.userId());
             redirect(req, resp, "/org/" + organization.getId() + "/licenses");
         } catch (ValidationException e) {
             req.setAttribute("error", e.getMessage());
@@ -178,7 +178,7 @@ public class OrganizationServlet extends BaseServlet {
             return null;
         }
         return services().getOrganizationService()
-                .findMemberRole(orgId, currentUser.getUserId())
+                .findMemberRole(orgId, currentUser.userId())
                 .map(MemberRole::name)
                 .orElse(null);
     }
