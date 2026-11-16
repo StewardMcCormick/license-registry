@@ -40,3 +40,4 @@ bin/
 
 ### Env ###
 .env
+**/**/db.properties
