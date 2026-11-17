@@ -13,7 +13,7 @@
 
     <p><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/new">Добавить лицензию</a></p>
 
-    <form method="get" action="${pageContext.request.contextPath}/org/${orgId}/licenses">
+    <form id="filter-form" data-org-id="${orgId}" data-license-id="${license.id}">
         <select name="status">
             <option value="">Любой статус</option>
             <option value="ACTIVE"<c:if test="${param.status eq 'ACTIVE'}"> selected</c:if>>Действует</option>
@@ -34,7 +34,8 @@
                 <legend>Теги</legend>
                 <c:forEach var="tag" items="${tags}">
                     <label>
-                        <input type="checkbox" name="tagIds" value="${tag.id}"<c:if test="${not empty selectedTagIds and selectedTagIds.contains(tag.id)}"> checked</c:if>>
+                        <input type="checkbox" name="tagIds" value="${tag.id}"<c:if
+                                test="${not empty selectedTagIds and selectedTagIds.contains(tag.id)}"> checked</c:if>>
                         <c:out value="${tag.name}"/>
                     </label>
                 </c:forEach>
@@ -44,8 +45,15 @@
         <button type="submit">Найти</button>
     </form>
 
+
     <table>
-        <tr><th>Название</th><th>Статус</th><th>Истекает</th><th>Ссылка</th></tr>
+        <tr>
+            <th>Название</th>
+            <th>Статус</th>
+            <th>Истекает</th>
+            <th>Ссылка</th>
+        </tr>
+        <tbody id="license-table">
         <c:forEach var="license" items="${licenses}">
             <tr>
                 <td><c:out value="${license.title}"/></td>
@@ -54,7 +62,9 @@
                 <td><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/${license.id}">Открыть</a></td>
             </tr>
         </c:forEach>
+        </tbody>
     </table>
 </main>
+<script src="${pageContext.request.contextPath}/js/license-filter.js"></script>
 </body>
 </html>

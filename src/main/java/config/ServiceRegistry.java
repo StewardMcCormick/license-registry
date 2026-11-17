@@ -22,6 +22,7 @@ import service.license.LicenseService;
 import service.license.type.LicenseTypeService;
 import service.organization.OrganizationService;
 import service.tag.TagService;
+import tools.jackson.databind.ObjectMapper;
 
 public class ServiceRegistry {
 
@@ -33,6 +34,8 @@ public class ServiceRegistry {
     private final TagService tagService;
     private final LicenseService licenseService;
     private final AdminService adminService;
+
+    private final ObjectMapper objectMapper;
 
     public ServiceRegistry() {
         UserRepository userRepository = new JdbcUserRepository();
@@ -52,6 +55,8 @@ public class ServiceRegistry {
                 licenseTypeLinkRepository, tagRepository, licenseTagRepository, tagService);
         this.adminService = new AdminService(userRepository, organizationRepository, memberRepository,
                 licenseRepository);
+
+        this.objectMapper = new ObjectMapper();
     }
 
     public AuthService getAuthService() {
@@ -76,5 +81,9 @@ public class ServiceRegistry {
 
     public AdminService getAdminService() {
         return adminService;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 }

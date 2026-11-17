@@ -76,7 +76,24 @@ public class LicenseController {
         req.setAttribute("types", types);
         req.setAttribute("tags", tags);
         req.setAttribute("selectedTagIds", tagIds);
+
+        String acceptHeader = req.getHeader("Accept");
+        if (acceptHeader != null && acceptHeader.contains("application/json")) {
+            sendJsonLicensesList(resp, licenses);
+            return;
+        }
+
+        sendJspLicensesList(req, resp);
+    }
+
+    private void sendJspLicensesList(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
         render(req, resp, "licenses/list.jsp");
+    }
+
+    private void sendJsonLicensesList(HttpServletResponse resp, List<License> licenses) throws IOException {
+        resp.setContentType("application/json");
+        services.getObjectMapper().writeValue(resp.getWriter(), licenses);
     }
 
     private void showNewLicensePage(HttpServletRequest req, HttpServletResponse resp, UUID orgId)
