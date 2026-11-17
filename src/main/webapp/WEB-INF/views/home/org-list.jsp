@@ -2,33 +2,35 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <html>
 <head>
-    <meta charset="UTF-8">
+    <%@ include file="/WEB-INF/views/layout/head.jsp" %>
     <title>Мои организации</title>
 </head>
 <body>
 <%@ include file="/WEB-INF/views/layout/global-navbar.jsp" %>
-<h1>Мои организации</h1>
+<main class="container">
+    <h1>Мои организации</h1>
 
-<c:choose>
-    <c:when test="${empty organizations}">
-        <p>Вы пока не состоите ни в одной организации.</p>
-    </c:when>
-    <c:otherwise>
-        <table border="1">
-            <tr>
-                <th>Название</th>
-                <th>Роль</th>
-                <th></th>
-            </tr>
-            <c:forEach var="org" items="${organizations}">
+    <c:choose>
+        <c:when test="${empty organizations}">
+            <p>Вы пока не состоите ни в одной организации.</p>
+        </c:when>
+        <c:otherwise>
+            <table>
                 <tr>
-                    <td><c:out value="${org.name}"/></td>
-                    <td><c:out value="${rolesByOrgId[org.id]}"/></td>
-                    <td><a href="${pageContext.request.contextPath}/org/${org.id}/licenses">Открыть</a></td>
+                    <th>Название</th>
+                    <th>Роль</th>
+                    <th></th>
                 </tr>
-            </c:forEach>
-        </table>
-    </c:otherwise>
-</c:choose>
+                <c:forEach var="org" items="${organizations}">
+                    <tr>
+                        <td><c:out value="${org.name}"/></td>
+                        <td><c:out value="${rolesByOrgId[org.id]}"/></td>
+                        <td><a href="${pageContext.request.contextPath}/org/${org.id}/licenses">Открыть</a></td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </c:otherwise>
+    </c:choose>
+</main>
 </body>
 </html>

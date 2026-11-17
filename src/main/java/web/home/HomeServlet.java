@@ -12,18 +12,12 @@ import java.io.IOException;
 import static web.util.View.redirect;
 import static web.util.View.render;
 
-@WebServlet("/")
+@WebServlet("")
 public class HomeServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String path = request.getRequestURI().substring(request.getContextPath().length());
-        if (!path.isEmpty() && !"/".equals(path)) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
         CurrentUser currentUser = currentUser(request);
         if (currentUser == null) {
             redirect(request, response, "/login");

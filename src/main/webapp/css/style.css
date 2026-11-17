@@ -1,0 +1,285 @@
+:root {
+    --blue: #2b6cb0;
+    --blue-dark: #1e4e8c;
+    --blue-light: #eaf3fc;
+    --blue-border: #c7ddf2;
+    --text: #1f2d3d;
+    --muted: #5a6b7b;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+    background: #fff;
+}
+
+a {
+    color: var(--blue);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Верхний бар */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: var(--blue);
+    padding: 0 20px;
+}
+
+.topbar .brand {
+    color: #fff;
+    font-weight: 600;
+    padding: 12px 16px 12px 0;
+}
+
+.topbar nav {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.topbar nav a {
+    color: #eaf3fc;
+    padding: 12px 14px;
+    font-size: 14px;
+}
+
+.topbar nav a:hover {
+    background: var(--blue-dark);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Второй бар (внутри организации) */
+
+.subbar {
+    background: var(--blue-light);
+    border-bottom: 1px solid var(--blue-border);
+    padding: 0 20px;
+}
+
+.subbar nav {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.subbar nav a {
+    color: var(--blue-dark);
+    padding: 10px 14px;
+    font-size: 14px;
+}
+
+.subbar nav a:hover {
+    background: #d7e8fa;
+    text-decoration: none;
+}
+
+/* Содержимое */
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+}
+
+h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--blue-dark);
+    margin: 0 0 16px;
+}
+
+h2 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--blue-dark);
+    margin: 26px 0 12px;
+}
+
+h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 20px 0 10px;
+}
+
+p {
+    margin: 8px 0;
+}
+
+/* Блоки сообщений */
+
+.alert {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 12px 0;
+}
+
+.alert.error {
+    color: #b3261e;
+    background: #fdecea;
+    border: 1px solid #f5c6c0;
+}
+
+/* Таблицы */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+th, td {
+    padding: 8px 10px;
+    border: 1px solid var(--blue-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 600;
+}
+
+/* Формы */
+
+form {
+    margin: 14px 0;
+}
+
+label {
+    margin-right: 12px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="search"],
+select,
+textarea {
+    padding: 7px 9px;
+    border: 1px solid var(--blue-border);
+    border-radius: 4px;
+    font: inherit;
+    color: var(--text);
+    background: #fff;
+    min-width: 220px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 80px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+fieldset {
+    border: 1px solid var(--blue-border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 12px 0;
+}
+
+legend {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 0 4px;
+}
+
+/* Кнопки */
+
+button {
+    padding: 8px 16px;
+    font: inherit;
+    color: #fff;
+    background: var(--blue);
+    border: 1px solid var(--blue);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--blue-dark);
+    border-color: var(--blue-dark);
+}
+
+button.link {
+    padding: 2px 6px;
+    font-size: 13px;
+    color: var(--blue);
+    background: none;
+    border: none;
+}
+
+button.link:hover {
+    background: none;
+    text-decoration: underline;
+}
+
+/* Формы-действия в строке */
+
+.inline {
+    display: inline;
+}
+
+/* Экран входа/регистрации */
+
+.card {
+    max-width: 380px;
+    margin: 48px auto;
+    padding: 28px;
+    border: 1px solid var(--blue-border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.card h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.card input[type="text"],
+.card input[type="email"],
+.card input[type="password"] {
+    width: 100%;
+    min-width: 0;
+}
+
+.card button {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.card p {
+    margin: 0 0 10px;
+}
+
+.card .footer-link {
+    text-align: center;
+    margin-top: 16px;
+}
+
+/* Список статистики */
+
+.stats p {
+    margin: 4px 0;
+}
