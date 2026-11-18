@@ -23,6 +23,7 @@ import service.license.type.LicenseTypeService;
 import service.organization.OrganizationService;
 import service.tag.TagService;
 import tools.jackson.databind.ObjectMapper;
+import util.worker.LicenseStatusUpdateWorker;
 
 public class ServiceRegistry {
 
@@ -36,6 +37,8 @@ public class ServiceRegistry {
     private final AdminService adminService;
 
     private final ObjectMapper objectMapper;
+
+    private final LicenseStatusUpdateWorker licenseStatusUpdateWorker;
 
     public ServiceRegistry() {
         UserRepository userRepository = new JdbcUserRepository();
@@ -57,6 +60,8 @@ public class ServiceRegistry {
                 licenseRepository);
 
         this.objectMapper = new ObjectMapper();
+
+        this.licenseStatusUpdateWorker = new LicenseStatusUpdateWorker(licenseService);
     }
 
     public AuthService getAuthService() {
@@ -85,5 +90,9 @@ public class ServiceRegistry {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public LicenseStatusUpdateWorker getLicenseStatusUpdateWorker() {
+        return licenseStatusUpdateWorker;
     }
 }
