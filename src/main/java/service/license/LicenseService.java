@@ -148,7 +148,7 @@ public class LicenseService {
         for (License license : licenseRepository.findAllNonCancelled()) {
             LicenseStatus newStatus = computeStatus(license.getExpiresAt());
             if (newStatus != license.getStatus()) {
-                licenseRepository.updateStatus(license.getId(), newStatus);
+                licenseRepository.recalculateStatus(license.getId(), newStatus);
                 updatedCount++;
             }
         }

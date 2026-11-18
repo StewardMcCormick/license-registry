@@ -165,13 +165,14 @@ public class LicenseController {
     private void createLicense(HttpServletRequest req, HttpServletResponse resp, UUID orgId)
             throws ServletException, IOException {
         String title = req.getParameter("title");
-        LocalDate issuedAt = ParamUtil.parseDate(req.getParameter("issuedAt"));
-        LocalDate expiresAt = ParamUtil.parseDate(req.getParameter("expiresAt"));
         String notes = req.getParameter("notes");
         List<UUID> typeIds = ParamUtil.parseUuidList(req.getParameterValues("typeIds"));
         List<String> tags = ParamUtil.parseCommaSeparated(req.getParameter("tags"));
 
         try {
+            LocalDate issuedAt = ParamUtil.parseDate(req.getParameter("issuedAt"));
+            LocalDate expiresAt = ParamUtil.parseDate(req.getParameter("expiresAt"));
+
             License license = services.getLicenseService().create(
                     orgId,
                     title,
@@ -187,8 +188,8 @@ public class LicenseController {
             req.setAttribute("error", e.getMessage());
             req.setAttribute("types", services.getLicenseTypeService().getAll(orgId));
             req.setAttribute("formTitle", title);
-            req.setAttribute("formIssuedAt", issuedAt);
-            req.setAttribute("formExpiresAt", expiresAt);
+            req.setAttribute("formIssuedAt", req.getParameter("issuedAt"));
+            req.setAttribute("formExpiresAt", req.getParameter("expiresAt"));
             req.setAttribute("formNotes", notes);
             req.setAttribute("formTags", req.getParameter("tags"));
             req.setAttribute("formTypeIds", typeIds);

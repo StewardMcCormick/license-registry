@@ -28,5 +28,7 @@ public interface LicenseRepository {
 
     void updateStatus(UUID id, LicenseStatus status);
 
+    void recalculateStatus(UUID id, LicenseStatus status);
+
     void delete(UUID id);
 }

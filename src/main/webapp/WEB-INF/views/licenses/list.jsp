@@ -13,7 +13,7 @@
 
     <p><a href="${pageContext.request.contextPath}/org/${orgId}/licenses/new">Добавить лицензию</a></p>
 
-    <form id="filter-form" data-org-id="${orgId}" data-license-id="${license.id}">
+    <form id="filter-form" data-org-id="${orgId}" data-context-path="${pageContext.request.contextPath}">
         <select name="status">
             <option value="">Любой статус</option>
             <option value="ACTIVE"<c:if test="${param.status eq 'ACTIVE'}"> selected</c:if>>Действует</option>

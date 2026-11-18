@@ -1,7 +1,7 @@
 const form = document.querySelector("#filter-form");
 
 const orgId = form.dataset.orgId;
-const licenseId = form.dataset.licenseId;
+const contextPath = form.dataset.contextPath || "";
 
 const licenseContainer = document.querySelector("#license-table");
 
@@ -11,7 +11,7 @@ form.addEventListener("submit", async (event) => {
     const params = new URLSearchParams(new FormData(form));
 
     try {
-        const url = `http://localhost:8080/org/${orgId}/licenses?${params}`;
+        const url = `${contextPath}/org/${orgId}/licenses?${params}`;
         const resp = await fetch(url, {
                 method: "GET",
                 headers: {
@@ -45,7 +45,7 @@ function renderLicenses(licenses) {
         title.textContent = l.title;
         status.textContent = l.status;
         expires.textContent = l.expiresAt;
-        link.href = `http://localhost:8080/org/${orgId}/licenses/${l.id}`;
+        link.href = `${contextPath}/org/${orgId}/licenses/${l.id}`;
         link.textContent = "Открыть";
 
         linkData.append(link);

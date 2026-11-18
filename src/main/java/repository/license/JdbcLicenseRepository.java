@@ -187,7 +187,7 @@ public class JdbcLicenseRepository implements LicenseRepository {
 
     @Override
     public void updateStatus(UUID id, LicenseStatus status) {
-        String sql = "UPDATE licenses SET status = ? WHERE id = ?";
+        String sql = "UPDATE licenses SET status = ?, updated_at = now() WHERE id = ?";
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status.name());
@@ -195,6 +195,19 @@ public class JdbcLicenseRepository implements LicenseRepository {
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RepositoryException("Не удалось обновить статус лицензии", e);
+        }
+    }
+
+    @Override
+    public void recalculateStatus(UUID id, LicenseStatus status) {
+        String sql = "UPDATE licenses SET status = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, status.name());
+            statement.setObject(2, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RepositoryException("Не удалось пересчитать статус лицензии", e);
         }
     }
 
