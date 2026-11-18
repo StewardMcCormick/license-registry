@@ -1,8 +1,10 @@
 # API — HTTP-маршруты
 
-Приложение server-rendered (MVC, JSP): JSON-API нет. Успешный **GET** отдаёт HTML-страницу
-(`WEB-INF/views/...`), успешный **POST** — обычно `302 redirect` (схема Post/Redirect/Get).
-Ошибки отдаются страницей `error.jsp` с соответствующим HTTP-статусом.
+Приложение server-rendered (MVC, JSP): у успешных **GET** обычно отдаётся HTML-страница
+(`WEB-INF/views/...`), у успешных **POST** — `302 redirect` (схема Post/Redirect/Get).
+Исключение — список лицензий: при заголовке `Accept: application/json` `GET /org/{orgId}/licenses`
+отдаёт JSON (используется AJAX-фильтром). Ошибки рендерятся страницей `error.jsp`
+с соответствующим HTTP-статусом.
 
 ## Общие правила
 
@@ -27,7 +29,7 @@
 | `OrgRoleFilter` | `/org/*` | для страницы настроек `/org/{id}` и действий `reissue-code`/`promote`/`lower` требует роль `ADMIN` **именно в этой организации** (роль в другой организации не подходит); иначе `403`. Суперадмин пропускается, раздел `licenses` доступен и `MANAGER` (создание типа лицензии `POST /licenses/types` дополнительно требует `ADMIN` — проверяется в контроллере) |
 | `SuperadminFilter` | `/admin`, `/admin/*` | только `SUPERADMIN`, иначе `403` |
 
-`error-page`: `Exception` и коды `400/403/404/500` → `/error`.
+`error-page`: `Exception` и коды `400/401/403/404/500` → `/error`.
 
 ## Аутентификация
 
@@ -78,6 +80,8 @@
 | POST | `/org/{orgId}/licenses/{id}/cancel` | — | статус → `CANCELLED` → `302 .../{id}` |
 | POST | `/org/{orgId}/licenses/{id}/restore` | — | снять `CANCELLED`, пересчитать статус → `302 .../{id}` |
 | POST | `/org/{orgId}/licenses/{id}/delete` | — | удалить → `302 /org/{orgId}/licenses` |
+
+`GET /org/{orgId}/licenses` при заголовке `Accept: application/json` отдаёт `application/json` — массив лицензий (поля модели `License`); так работает AJAX-фильтр `js/license-filter.js`.
 
 Фильтр по тегам множественный: `tagIds` можно передать несколько раз, и лицензия должна содержать **все** выбранные теги (логика **AND**). Невалидные `status`/`typeId`/`tagIds` игнорируются.
 
